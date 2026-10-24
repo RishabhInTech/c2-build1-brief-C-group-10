@@ -5,6 +5,9 @@ import csv
 import gzip
 import json
 import re
+import shutil
+import tempfile
+import zipfile
 from collections import Counter
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
@@ -73,17 +76,39 @@ def save_csv(path, columns, rows):
         writer.writerows(rows)
 
 
+def source_files(source):
+    if not source.is_file() or source.suffix.lower() != ".zip":
+        return source, None
+
+    temporary = tempfile.TemporaryDirectory(prefix="brief-c-source-")
+    root = Path(temporary.name)
+    with zipfile.ZipFile(source) as archive:
+        patterns = [f"datapack/{table['pattern']}" for table in TABLES.values()]
+        for member in archive.infolist():
+            if not any(Path(member.filename).match(pattern) for pattern in patterns):
+                continue
+            relative = Path(*Path(member.filename).parts[1:])
+            target = root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(member) as packed, target.open("wb") as unpacked:
+                shutil.copyfileobj(packed, unpacked)
+    return root, temporary
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-dir", help="folder containing invoices/ and payments/")
+    parser.add_argument("--source-dir", help="data-pack folder or ZIP archive")
     parser.add_argument("--output-dir", help="where to write the cleaned tables")
     args = parser.parse_args()
 
+    archive = ROOT / "data/Build1_DataPack.zip"
     starter = (ROOT / "data/raw").is_dir()
-    source = Path(args.source_dir).resolve() if args.source_dir else ROOT / "data/raw" if starter else ROOT
+    source = (Path(args.source_dir).resolve() if args.source_dir else
+              archive if archive.is_file() else ROOT / "data/raw" if starter else ROOT)
     output = Path(args.output_dir).resolve() if args.output_dir else ROOT / "data/clean/brief_c" if starter else ROOT / "cleaned_brief_c"
     output.mkdir(parents=True, exist_ok=True)
-    files = {name: sorted(source.glob(spec["pattern"])) for name, spec in TABLES.items()}
+    data_dir, _temporary_source = source_files(source)
+    files = {name: sorted(data_dir.glob(spec["pattern"])) for name, spec in TABLES.items()}
     if any(not paths for paths in files.values()):
         raise FileNotFoundError("Expected invoice, gateway and settlement CSV.GZ files.")
 
@@ -94,78 +119,80 @@ def main():
                            record_id=key, field=field, observed_value=value, issue=issue))
 
     for table, spec in TABLES.items():
-        rows, seen, bookings, dates, counts = [], set(), set(), [], Counter()
+        seen, bookings, dates, counts = set(), set(), [], Counter()
         total = Decimal(0)
 
-        for path in files[table]:
-            for number, row in read_rows(path):
-                if row is None:
-                    counts["repeated_headers"] += 1
-                    continue
-                counts["rows"] += 1
-                row = {key: value for key, value in row.items() if key not in {"patient_id", "patient_name"}}
-                key_field = spec["key"]
-                key = row.get(key_field, "")
-                key = key.upper() if key_field == "invoice_id" else key
-                row[key_field] = key
+        with (output / spec["file"]).open("w", encoding="utf-8", newline="") as stream:
+            writer = csv.DictWriter(stream, fieldnames=spec["columns"].split(), extrasaction="ignore")
+            writer.writeheader()
+            for path in files[table]:
+                for number, row in read_rows(path):
+                    if row is None:
+                        counts["repeated_headers"] += 1
+                        continue
+                    counts["rows"] += 1
+                    row = {key: value for key, value in row.items() if key not in {"patient_id", "patient_name"}}
+                    key_field = spec["key"]
+                    key = row.get(key_field, "")
+                    key = key.upper() if key_field == "invoice_id" else key
+                    row[key_field] = key
 
-                if not key:
-                    flag(table, path, number, key, key_field, key, "blank ID retained")
-                elif not re.fullmatch(ID_PATTERNS[key_field], key, re.I):
-                    flag(table, path, number, key, key_field, key, "ID format needs review")
-                if key in seen:
-                    counts["duplicate_ids"] += 1
-                    flag(table, path, number, key, key_field, key, "duplicate ID retained")
-                seen.add(key)
+                    if not key:
+                        flag(table, path, number, key, key_field, key, "blank ID retained")
+                    elif not re.fullmatch(ID_PATTERNS[key_field], key, re.I):
+                        flag(table, path, number, key, key_field, key, "ID format needs review")
+                    if key in seen:
+                        counts["duplicate_ids"] += 1
+                        flag(table, path, number, key, key_field, key, "duplicate ID retained")
+                    seen.add(key)
 
-                for raw_field, clean_field, paise in spec["money"]:
-                    value, problem = to_money(row.get(raw_field), paise)
-                    row[clean_field] = value
-                    if problem:
-                        counts[f"{problem}_{clean_field}"] += 1
-                        flag(table, path, number, key, raw_field, row.get(raw_field, ""), f"{problem} amount retained blank")
-                    else:
-                        total += Decimal(value)
+                    for raw_field, clean_field, paise in spec["money"]:
+                        value, problem = to_money(row.get(raw_field), paise)
+                        row[clean_field] = value
+                        if problem:
+                            counts[f"{problem}_{clean_field}"] += 1
+                            flag(table, path, number, key, raw_field, row.get(raw_field, ""), f"{problem} amount retained blank")
+                        else:
+                            total += Decimal(value)
 
-                if table == "invoices":
-                    row["city"] = "Bengaluru" if row.get("city", "").lower() == "bangalore" else row.get("city", "")
-                    row["channel"] = row.get("channel", "").lower()
-                    invoice_date = row.get("invoice_date", "")
-                    try:
-                        datetime.fromisoformat(invoice_date)
-                        dates.append(invoice_date)
-                    except ValueError:
-                        flag(table, path, number, key, "invoice_date", invoice_date, "date needs review; retained")
-                    booking = row.get("booking_id", "")
-                    if booking and booking in bookings:
-                        counts["duplicate_bookings"] += 1
-                        flag(table, path, number, key, "booking_id", booking, "multiple invoices per booking")
-                    if booking:
-                        bookings.add(booking)
+                    if table == "invoices":
+                        row["city"] = "Bengaluru" if row.get("city", "").lower() == "bangalore" else row.get("city", "")
+                        row["channel"] = row.get("channel", "").lower()
+                        invoice_date = row.get("invoice_date", "")
+                        try:
+                            datetime.fromisoformat(invoice_date)
+                            dates.append(invoice_date)
+                        except ValueError:
+                            flag(table, path, number, key, "invoice_date", invoice_date, "date needs review; retained")
+                        booking = row.get("booking_id", "")
+                        if booking and booking in bookings:
+                            counts["duplicate_bookings"] += 1
+                            flag(table, path, number, key, "booking_id", booking, "multiple invoices per booking")
+                        if booking:
+                            bookings.add(booking)
 
-                if table == "gateway_payments":
-                    row["invoice_ref_raw"] = row.get("notes_invoice_ref", "")
-                    row["invoice_ref"] = row["invoice_ref_raw"].upper()
-                    if not re.fullmatch(ID_PATTERNS["invoice_id"], row["invoice_ref"]):
-                        flag(table, path, number, key, "notes_invoice_ref", row["invoice_ref_raw"], "invoice reference format needs review")
-                    for field in ("status", "method"):
-                        row[field] = row.get(field, "").lower()
-                        counts[f"{field}:{row[field] or '(blank)'}"] += 1
-                elif table == "settlements":
-                    row["status"] = row.get("status", "").lower()
+                    if table == "gateway_payments":
+                        row["invoice_ref_raw"] = row.get("notes_invoice_ref", "")
+                        row["invoice_ref"] = row["invoice_ref_raw"].upper()
+                        if not re.fullmatch(ID_PATTERNS["invoice_id"], row["invoice_ref"]):
+                            flag(table, path, number, key, "notes_invoice_ref", row["invoice_ref_raw"], "invoice reference format needs review")
+                        for field in ("status", "method"):
+                            row[field] = row.get(field, "").lower()
+                            counts[f"{field}:{row[field] or '(blank)'}"] += 1
+                    elif table == "settlements":
+                        row["status"] = row.get("status", "").lower()
 
-                if table != "invoices":
-                    utc, ist, problem = to_times(row.get("created_at_epoch", ""))
-                    row.update(created_at_utc=utc, created_at_ist=ist)
-                    if problem:
-                        flag(table, path, number, key, "created_at_epoch", row.get("created_at_epoch", ""), f"{problem} timestamp; retained")
-                    else:
-                        dates.append(utc)
+                    if table != "invoices":
+                        utc, ist, problem = to_times(row.get("created_at_epoch", ""))
+                        row.update(created_at_utc=utc, created_at_ist=ist)
+                        if problem:
+                            flag(table, path, number, key, "created_at_epoch", row.get("created_at_epoch", ""), f"{problem} timestamp; retained")
+                        else:
+                            dates.append(utc)
 
-                row.update(source_file=path.name, source_row=number)
-                rows.append(row)
+                    row.update(source_file=path.name, source_row=number)
+                    writer.writerow(row)
 
-        save_csv(output / spec["file"], spec["columns"].split(), rows)
         profile["tables"][table] = {
             "source_files": [path.name for path in files[table]], "rows": counts["rows"],
             "repeated_header_rows_removed": counts["repeated_headers"], "duplicate_id_rows": counts["duplicate_ids"],
@@ -173,8 +200,9 @@ def main():
             "valid_money_total_rs": f"{total:.2f}",
         }
         accounting.append({"dataset": table, "source_files": len(files[table]), "input_rows": counts["rows"],
-                           "cleaned_rows": len(rows), "rejected_rows": 0,
+                           "cleaned_rows": counts["rows"], "rejected_rows": 0,
                            "repeated_headers_removed": counts["repeated_headers"]})
+        print(f"Cleaned {table}: {counts['rows']:,} rows", flush=True)
 
     profile["rows_retained_with_issues"] = len(issues)
     profile["scope_note"] = "All source periods are retained for quarter and late-payment analysis."

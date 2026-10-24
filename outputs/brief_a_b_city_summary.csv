@@ -1,7 +1,7 @@
-city,y2025_h1_test_lines,y2026_h1_test_lines,plan,raw_2026_lines_including_rescheduled,rescheduled_lines_excluded,yoy_growth_pct,plan_attainment_pct,variance_vs_plan,group
-Ahmedabad,76910,83770,90773,83770,0,8.92,92.29,-7003,control
-Bengaluru,100007,106058,120085,106058,0,6.05,88.32,-14027,control
-Chennai,80292,79671,93912,82002,2331,-0.77,84.84,-14241,treated
-Hyderabad,73117,77533,86421,77533,0,6.04,89.72,-8888,control
-Jaipur,45057,39691,52372,40901,1210,-11.91,75.79,-12681,treated
-Pune,60711,64609,72177,64609,0,6.42,89.51,-7568,control
+city,group,y2025_h1_test_lines,y2026_h1_test_lines,raw_2026_lines_including_rescheduled,rescheduled_lines_excluded,yoy_growth_pct,y2026_h1_plan,plan_attainment_pct,variance_vs_plan
+Ahmedabad,control,76853,84986,84986,0,10.58,90773,93.62,-5787
+Bengaluru,control,99991,107543,107543,0,7.55,120085,89.56,-12542
+Chennai,treated,80195,80718,83049,2331,0.65,93912,85.95,-13194
+Hyderabad,control,73162,78575,78575,0,7.4,86421,90.92,-7846
+Jaipur,treated,45095,40214,41424,1210,-10.82,52372,76.79,-12158
+Pune,control,60584,65503,65503,0,8.12,72177,90.75,-6674

@@ -4,7 +4,7 @@
 **Period:** 1 January–30 June 2026, India time
 **Observation cutoff:** 15 July 2026, India time
 
-This follows the H1 volume check: active booked test lines grew 3.49% against 18.26% implied by plan. The finance bridge below is also H1-based. Monetary figures in this brief are in **crores of rupees**; the audit CSVs retain exact rupee amounts.
+This follows the H1 volume check: active scheduled test lines grew **4.97% (rounds to 5%)** against **18.32%** implied by plan. The finance bridge below is also H1-based. Monetary figures in this brief are in **crores of rupees**; the audit CSVs retain exact rupee amounts.
 
 ## Board sentence
 
@@ -48,9 +48,10 @@ The 181 settlement rows dated in H1 show gross **₹25.145 crore**, fees **₹0.
 
 ## Audit and rebuild
 
-The analysis script is [`analyze_brief_c_reconciliation.py`](../analyze_brief_c_reconciliation.py). It reads the cleaned rupee amounts as exact decimals and applies H1 boundaries in `Asia/Kolkata`; H1 closes at 30 June 23:59 IST.
+The cleaner ([`clean_brief_c.py`](../clean_brief_c.py)) reads the bundled ZIP by default, or an unpacked data-pack folder passed with `--source-dir`. It writes row-level tables locally under the Git-ignored `data/clean/brief_c/`. The analysis script ([`analyze_brief_c_reconciliation.py`](../analyze_brief_c_reconciliation.py)) reads rupee amounts as exact decimals and applies H1 boundaries in `Asia/Kolkata`; H1 closes at 30 June 23:59 IST.
 
 ```powershell
+python clean_brief_c.py
 python analyze_brief_c_reconciliation.py --data-dir data/clean/brief_c --output-dir outputs/brief_c --year 2026 --observation-cutoff 2026-07-15
 ```
 

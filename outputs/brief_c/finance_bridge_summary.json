@@ -79,7 +79,7 @@
     "The settlement comparison is not a bank reconciliation."
   ],
   "private_action_lists": [
-    "data\\clean\\brief_c_recheck\\actions\\h1_invoice_positive_balances.csv",
-    "data\\clean\\brief_c_recheck\\actions\\h1_unmatched_captures.csv"
+    "h1_invoice_positive_balances.csv",
+    "h1_unmatched_captures.csv"
   ]
 }

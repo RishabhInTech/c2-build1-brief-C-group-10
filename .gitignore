@@ -5,6 +5,7 @@ __pycache__/
 .DS_Store
 data/clean/*.csv
 !data/clean/README.md
+data/clean/brief_c/
 
 .ipynb_checkpoints/
 __pycache__/
@@ -14,5 +15,4 @@ __pycache__/
 data/clean/*.csv
 !data/clean/README.md
 data/Build1_DataPack.zip
-
 

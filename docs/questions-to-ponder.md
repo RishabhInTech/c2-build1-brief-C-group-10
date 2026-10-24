@@ -10,11 +10,17 @@ Every question can be answered at five levels. The levels come from the five-why
 
 | Level | What you can say | Example, brief A |
 |---|---|---|
-| 1 · Report | The number. | "Active booked test lines grew 3.49 percent after superseded reschedules were excluded." |
-| 2 · Explain | What moved it. | "Patients grew 4, visits per patient fell 2, tests per visit grew 3." |
-| 3 · Confidence | How sure you are, and why. | "The patient count comes from two tables that agree to within 0.3 percent; the visits figure depends on our identity rule for rescheduled bookings." |
-| 4 · Decide | What to do, and the cost of being wrong. | "Fund retention in the two cities, not acquisition. If our identity rule is wrong, the frequency fall is half the size and the money is better spent on home collection." |
-| 5 · System | Why the organisation produced this problem, and what would stop it recurring. | "The plan was set on volume alone. A plan set on patients and visits separately would have shown the gap by month two." |
+| 1 · Report | The number. | "Active scheduled test lines grew 4.97 percent, which rounds to the handbook's 5 percent: 457,539 versus 435,880." |
+| 2 · Explain | What moved it. | "Home lines rose by 55,696 (+37.39%) and clinic lines fell by 34,037 (-11.86%), leaving net growth of 21,659 (+4.97%)." |
+| 3 · Confidence | How sure you are, and why. | "The measure is one nonblank booking-test line by `slot_at` month, excludes 3,541 superseded reschedule lines, and compares the same six months. Booking-created-date growth is 3.49%; H1 result-date matching is about 81%, so this is scheduled volume, not confirmed completed volume." |
+| 4 · Decide | What to do, and the cost of being wrong. | "Review the plan and investigate Jaipur (76.79% attainment and -10.82% YoY) plus Chennai (the largest absolute city shortfall, 13,194 lines); check clinic demand/capacity and booking-to-result coverage before choosing an intervention. If the plan actually targets completed tests, a scheduled-line comparison could direct action at the wrong gap." |
+| 5 · System | Why the organisation produced this problem, and what would stop it recurring. | "A single H1 total hides that home growth is offsetting clinic declines and that every city and month missed plan. Track scheduled volume against plan monthly by city and channel, with a separately defined result-date completion measure and an owner-triggered forecast review; these data describe the gap but do not establish its cause." |
+
+### Brief A · defensible answer
+
+**Board answer:** “H1 active scheduled test volume grew **4.97% (rounds to 5%)**, from **435,880** to **457,539** lines, versus **18.32% implied growth** in the six-city plan. That is **88.72% plan attainment** and a shortfall of **58,201 lines**. Home growth partly offset clinic declines; every city and month still missed plan. We should investigate the clinic decline and the weakest city-plan attainment, while confirming that the plan targets scheduled tests rather than completed lab results.”
+
+Do not call the 13.35 percentage-point difference a causal effect. It is actual growth minus growth implied by plan. Do not claim Nova caused the miss: the migration comparison is descriptive, involves two cities, and has different pre-period trends. The result-date join is a coverage diagnostic, not a completion rate.
 
 ---
 

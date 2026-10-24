@@ -25,7 +25,7 @@ Build a traceable H1 2026 bridge from invoice billing to captured payments and b
 | # | Deliverable | Form | Acceptance test |
 |---|---|---|---|
 | D1 | The claim | One sentence on slide 3, with H1 period, crore amount, counts and cutoff | Dr Menon can explain the bridge composition and action without implying unmatched means permanently lost. |
-| D2 | The evidence | Notebooks 01–06 running cold; a SQL bridge Finance can rerun; aggregate profile/bridge outputs | A teammate reproduces the agreed counts and amounts from the repository workflow and local full data. |
+| D2 | The evidence | Reproducible Python workflow, project notebooks and aggregate profile/bridge outputs | A teammate reproduces the agreed counts and amounts from the repository workflow and local full data. |
 | D3 | The audit trail | Approach, decisions, challenges and AI logs; row-count reconciliation | Every bridge bar traces to input rows and every rule has an alternative, reason and effect. |
 | D4 | The action | Slide 6 plus finance exception lists | Finance receives invoice/payment references with source provenance, separated by action type. |
 | D5 | The write-ups and video | `docs/writeups.md`, video link in README | Each member writes their own section and presents a defensible part. |
