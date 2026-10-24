@@ -1,4 +1,4 @@
-# Approach log · Brief <LETTER> · Group <N>
+# Approach log · Brief c · Group 10
 
 One row per part of the work. At least two approaches in every row. Written when the choice is made, not afterwards; the commit timestamp is the proof. An approach you tried for twenty minutes and abandoned is the best kind of row. Keep the dead notebook cell and link to it.
 
@@ -18,6 +18,12 @@ The panel reads this file before it reads your notebooks. A panellist will cover
 | 9 | The chart that carries the claim | | | | | | | |
 | 10 | The one sentence | | | | | | | |
 
+|10|Handling Notebook 02's repeated kernel crashes|A: Continue troubleshooting Notebook 02. B: Proceed to Notebook 03's independent invoice-payment section|Approach B|Notebook 02 repeatedly crashed, while Notebook 03 could load invoices and payments directly from data/raw/|If Notebook 03 required the missing booking outputs from Notebook 02, continuing with Notebook 02 would have been necessary|Notebook 03's financial section successfully loaded 470,776 invoices and 473,507 payment records. The full pipeline is still incomplete|vysagk|2026-10-24|
+|11|Initial invoice and payment investigation|A: Compare total invoice and payment counts. B: Separate captured/failed payments and investigate invoice-payment matches|Approach B|on approach A,their counts will not conclude more payments means more collection|if only one payment is allowed for each invoices then the approach would give much better data|invoices - 470776,payements- 473507(captured 455469,failed 18038). Also the difference of 2731 between count doesnt make sense that collections are more|vysagk|2026-10-24|
+|12|Handling multiple payments per invoice|A: Join invoice rows directly to individual payments. B: Group captured payments by invoice reference before comparing amounts|Approach B|when we count the amount after join,it give wrong data, since there is multiple payments for single invoice ie repeated invoice counts|if it was one on one relations|we have 1925 invoices that reffers multiple payements |vysagk|2026-10-24|
+|12|Choosing the reporting period for financial comparison|A: Compare all available invoice/payment records. B: Use a defined reporting period and examine later payments separately|A for the preliminary investigation; B identified as necessary for an H1-specific analysis|The initial full-data totals helped identify the overall discrepancy, but did not isolate H1|Establishing the H1 reporting requirement before calculating totals|Full-data difference of ₹2,45,30,936 was observed; H1-specific difference remains uncalculated|vysagk|2026-10-24|
+
+1
 ## Parts we never had to choose about
 
 <List any part where only one approach was possible, and say why. The panel will ask whether that was true.>
