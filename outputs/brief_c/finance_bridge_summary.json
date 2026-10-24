@@ -1,7 +1,7 @@
 {
   "period": "2026-H1",
   "h1_start_ist": "2026-01-01T00:00:00+05:30",
-  "h1_end_exclusive_ist": "2027-07-01T00:00:00+05:30",
+  "h1_end_exclusive_ist": "2026-07-01T00:00:00+05:30",
   "observation_cutoff_inclusive_ist": "2026-07-15",
   "reference_rule": "Exact invoice ID, else remove hyphens when the invoice key is unique.",
   "mapping": {
@@ -11,8 +11,8 @@
     "unmapped_gateway_rows": 4765,
     "unmatched_captured_rows_all_observed": 4588,
     "unmatched_captured_amount_rs_all_observed": "7269408.00",
-    "unmatched_captured_rows_in_h1": 1564,
-    "unmatched_captured_amount_rs_in_h1": "2709867.00",
+    "unmatched_captured_rows_in_h1": 1541,
+    "unmatched_captured_amount_rs_in_h1": "2668046.00",
     "reference_format_counts": {
       "INV-9999-999999": 377586,
       "INV9999999999": 93132,
@@ -33,43 +33,43 @@
   "invoice_cohort": {
     "invoice_count": 162876,
     "invoice_amount_rs": "268283173.00",
-    "matched_captured_attempt_rows_by_h1_end": 153764,
-    "matched_captured_amount_rs_by_h1_end": "252986016.00",
-    "invoices_with_any_capture_by_h1_end": 153068,
-    "invoices_with_no_capture_by_h1_end": 9808,
-    "no_capture_invoice_amount_rs_by_h1_end": "16466166.00",
-    "partially_paid_invoices_by_h1_end": 16,
-    "partial_invoice_face_amount_rs": "27274.00",
-    "partial_unpaid_balance_rs": "17735.00",
-    "overcaptured_invoices_by_h1_end": 712,
-    "overcapture_rs": "1186744.00",
-    "positive_invoice_balance_rs_by_h1_end": "16483901.00",
-    "net_invoice_balance_rs_by_h1_end": "15297157.00",
-    "no_capture_invoices_with_capture_by_observation_cutoff": 0,
-    "face_amount_rs_of_those_later_paid_invoices": "0.00",
+    "matched_captured_attempt_rows_by_h1_end": 151993,
+    "matched_captured_amount_rs_by_h1_end": "249983046.00",
+    "invoices_with_any_capture_by_h1_end": 151305,
+    "invoices_with_no_capture_by_h1_end": 11571,
+    "no_capture_invoice_amount_rs_by_h1_end": "19448289.00",
+    "partially_paid_invoices_by_h1_end": 15,
+    "partial_invoice_face_amount_rs": "27144.00",
+    "partial_unpaid_balance_rs": "17285.00",
+    "overcaptured_invoices_by_h1_end": 704,
+    "overcapture_rs": "1165447.00",
+    "positive_invoice_balance_rs_by_h1_end": "19465574.00",
+    "net_invoice_balance_rs_by_h1_end": "18300127.00",
+    "no_capture_invoices_with_capture_by_observation_cutoff": 1763,
+    "face_amount_rs_of_those_later_paid_invoices": "2982123.00",
     "remaining_positive_invoice_balance_rs_by_observation_cutoff": "16483901.00",
     "remaining_positive_balance_invoice_count_by_observation_cutoff": 9824,
     "matched_capture_amount_rs_by_observation_cutoff": "252986016.00"
   },
   "payment_attempts_created_in_h1": {
-    "attempt_rows": 164486,
-    "captured_rows": 158252,
-    "captured_amount_rs": "260168157.00",
-    "failed_rows": 6234,
-    "failed_attempt_amount_rs_not_receipts": "10166530.00",
-    "matched_capture_rows": 156688,
-    "matched_capture_amount_rs": "257458290.00",
-    "unmatched_capture_rows": 1564,
-    "unmatched_capture_amount_rs": "2709867.00"
+    "attempt_rows": 162612,
+    "captured_rows": 156458,
+    "captured_amount_rs": "257123366.00",
+    "failed_rows": 6154,
+    "failed_attempt_amount_rs_not_receipts": "10035728.00",
+    "matched_capture_rows": 154917,
+    "matched_capture_amount_rs": "254455320.00",
+    "unmatched_capture_rows": 1541,
+    "unmatched_capture_amount_rs": "2668046.00"
   },
   "settlement_period": {
-    "settlement_rows": 196,
-    "gross_rs": "254959913.25",
-    "fees_rs": "5222448.04",
-    "tax_rs": "940040.71",
-    "net_after_fees_tax_rs": "248797424.50",
-    "captured_attempts_linked_by_settlement_id_rs_all_payment_dates": "261122402.00",
-    "linked_captures_minus_settlement_gross_rs": "6162488.75",
+    "settlement_rows": 181,
+    "gross_rs": "251449632.21",
+    "fees_rs": "5150545.52",
+    "tax_rs": "927098.27",
+    "net_after_fees_tax_rs": "245371988.42",
+    "captured_attempts_linked_by_settlement_id_rs_all_payment_dates": "257527276.00",
+    "linked_captures_minus_settlement_gross_rs": "6077643.79",
     "interpretation": "Diagnostic only; confirm date coverage, bank and cash records with Finance."
   },
   "limitations": [
@@ -79,7 +79,7 @@
     "The settlement comparison is not a bank reconciliation."
   ],
   "private_action_lists": [
-    "data\\clean\\brief_c\\actions\\h1_invoice_positive_balances.csv",
-    "data\\clean\\brief_c\\actions\\h1_unmatched_captures.csv"
+    "data\\clean\\brief_c_recheck\\actions\\h1_invoice_positive_balances.csv",
+    "data\\clean\\brief_c_recheck\\actions\\h1_unmatched_captures.csv"
   ]
 }

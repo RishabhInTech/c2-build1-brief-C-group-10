@@ -55,7 +55,7 @@ def main():
     payments.loc[needs_map, "mapped_invoice_id"] = payments.loc[needs_map, "canonical"].map(canonical_map)
 
     start = pd.Timestamp(args.year, 1, 1, tz="Asia/Kolkata")
-    end = pd.Timestamp(args.year + 1, 7, 1, tz="Asia/Kolkata")
+    end = pd.Timestamp(args.year, 7, 1, tz="Asia/Kolkata")
     observe_end = pd.Timestamp(args.observation_cutoff, tz="Asia/Kolkata") + pd.Timedelta(days=1)
     start_utc, end_utc = start.tz_convert("UTC"), end.tz_convert("UTC")
     observe_utc = observe_end.tz_convert("UTC")

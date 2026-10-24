@@ -8,7 +8,7 @@ This follows the H1 volume check: active booked test lines grew 3.49% against 18
 
 ## Board sentence
 
-> At H1 2026 close, positive invoice balances totaled **₹1.648 crore** across **9,824 of 162,876 invoices** (**₹26.828 crore billed**): 9,808 had no captured match and 16 were partial; through 15 July, none of those no-match H1 invoices had a later captured payment, leaving **₹1.648 crore** in positive balances, while 1,564 H1 captured attempts worth **₹0.271 crore** had no safe invoice match—Finance should pursue the open invoice list and resolve unmatched captures before calling the difference lost.
+> At H1 2026 close, positive invoice balances totaled **₹1.947 crore** across **11,586 of 162,876 invoices** (**₹26.828 crore billed**): 11,571 had no captured match and 15 were partial; by 15 July, 1,763 of those no-capture invoices had later captures against **₹0.298 crore** in invoice face value, leaving **₹1.648 crore** open across 9,824 invoices, while 1,541 H1 captured attempts worth **₹0.267 crore** had no safe invoice match—Finance should pursue the open invoice list and resolve unmatched captures before calling the difference lost.
 
 Positive balances are calculated invoice by invoice; overcaptures on other invoices are kept separate and are not used to offset unrelated balances.
 
@@ -17,22 +17,22 @@ Positive balances are calculated invoice by invoice; overcaptures on other invoi
 | H1 2026 item | Rows / invoices | Amount (₹ crore) | Rule |
 |---|---:|---:|---|
 | Invoices dated 1 Jan–30 Jun | 162,876 invoices | 26.828 | One row per unique invoice ID |
-| Captured attempts safely matched by 30 Jun | 153,764 attempts across 153,068 invoices | 25.299 | Captured status; matched attempts summed by invoice |
-| Invoices with no matched capture by 30 Jun | 9,808 invoices | 1.647 face value | No captured attempt matched by the H1 cutoff |
-| Partially paid invoices by 30 Jun | 16 invoices | 0.002 remaining | Invoice balance after matched captures |
-| Positive invoice balances by 30 Jun | 9,824 invoices | 1.648 | Sum of positive invoice balances; no cross-invoice offsets |
-| Overcaptured invoices by 30 Jun | 712 invoices | 0.119 above invoice amount | Reported separately |
-| Later captures against H1 invoices with no H1 capture | 0 invoices | 0.000 | Observed through 15 Jul 2026 |
+| Captured attempts safely matched by 30 Jun | 151,993 attempts across 151,305 invoices | 24.998 | Captured status; matched attempts summed by invoice |
+| Invoices with no matched capture by 30 Jun | 11,571 invoices | 1.945 face value | No captured attempt matched by the H1 cutoff |
+| Partially paid invoices by 30 Jun | 15 invoices | 0.002 remaining | Invoice balance after matched captures |
+| Positive invoice balances by 30 Jun | 11,586 invoices | 1.947 | Sum of positive invoice balances; no cross-invoice offsets |
+| Overcaptured invoices by 30 Jun | 704 invoices | 0.117 above invoice amount | Reported separately |
+| H1 no-capture invoices with a later capture | 1,763 invoices | 0.298 face value | Captures observed through 15 Jul 2026 |
 | Positive invoice balances still open by 15 Jul | 9,824 invoices | 1.648 | Balance through the observation cutoff |
 
 ## H1 payment attempts
 
 | H1 2026 payment activity | Attempts | Amount (₹ crore) | Treatment |
 |---|---:|---:|---|
-| Captured attempts | 158,252 | 26.017 | Gateway status `captured` |
-| Captured attempts with a safe invoice match | 156,688 | 25.746 | Invoice reference rule below |
-| Captured attempts without a safe invoice match | 1,564 | 0.271 | Kept as an exception list for Finance |
-| Failed attempts | 6,234 | 1.017 | Not counted as receipts |
+| Captured attempts | 156,458 | 25.712 | Gateway status `captured` |
+| Captured attempts with a safe invoice match | 154,917 | 25.446 | Invoice reference rule below |
+| Captured attempts without a safe invoice match | 1,541 | 0.267 | Kept as an exception list for Finance |
+| Failed attempts | 6,154 | 1.004 | Not counted as receipts |
 
 The invoice-cohort match total and the H1 payment-attempt total differ because the first measures captures attached to invoices issued in H1 by the cutoff, while the second measures attempts created during H1. They are separate views of the bridge and should not be added together.
 
@@ -44,11 +44,11 @@ The full supplied files cover invoices dated 30 Dec 2024–30 Jun 2026 and gatew
 
 The matching rule is exact `invoice_id` first; otherwise remove hyphens from the trimmed, uppercased reference and match only when the invoice key is unique. No canonical collisions were found. Amount/date similarity is not used to guess identity. Across all source periods, 468,742 of 473,507 gateway rows map to an invoice; 4,765 do not.
 
-The 196 settlement rows dated in H1 show gross **₹25.496 crore**, fees **₹0.522 crore**, tax **₹0.094 crore**, and calculated net **₹24.880 crore**. Captures linked to those settlement IDs total **₹26.112 crore** across supplied payment dates, **₹0.616 crore** above settlement gross. This is a diagnostic, not a bank reconciliation: payment and settlement date windows differ, and the source pack has no independent bank statement or validated clinic cash register.
+The 181 settlement rows dated in H1 show gross **₹25.145 crore**, fees **₹0.515 crore**, tax **₹0.093 crore**, and calculated net **₹24.537 crore**. Captures linked to those settlement IDs total **₹25.753 crore** across supplied payment dates, **₹0.608 crore** above settlement gross. This is a diagnostic, not a bank reconciliation: payment and settlement date windows differ, and the source pack has no independent bank statement or validated clinic cash register.
 
 ## Audit and rebuild
 
-The analysis script is [`analyze_brief_c_reconciliation.py`](../analyze_brief_c_reconciliation.py). It reads the cleaned rupee amounts as exact decimals and applies H1 boundaries in `Asia/Kolkata`.
+The analysis script is [`analyze_brief_c_reconciliation.py`](../analyze_brief_c_reconciliation.py). It reads the cleaned rupee amounts as exact decimals and applies H1 boundaries in `Asia/Kolkata`; H1 closes at 30 June 23:59 IST.
 
 ```powershell
 python analyze_brief_c_reconciliation.py --data-dir data/clean/brief_c --output-dir outputs/brief_c --year 2026 --observation-cutoff 2026-07-15

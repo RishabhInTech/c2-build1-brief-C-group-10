@@ -1,10 +1,10 @@
 bridge_item,rows,amount_crore,amount_rs
 H1 invoices,162876,26.8283,268283173.00
-Captured attempts matched by H1 end,153764,25.2986,252986016.00
-Invoices with no matched capture by H1 end,9808,1.6466,16466166.00
-Partially paid invoices by H1 end,16,0.0018,17735.00
-Overcaptured invoices by H1 end,712,0.1187,1186744.00
-"Positive balances less overcaptures (diagnostic, not accounting net)",9824,1.5297,15297157.00
-Unmatched captured attempts created in H1,1564,0.2710,2709867.00
-Failed attempts created in H1 (not receipts),6234,1.0167,10166530.00
+Captured attempts matched by H1 end,151993,24.9983,249983046.00
+Invoices with no matched capture by H1 end,11571,1.9448,19448289.00
+Partially paid invoices by H1 end,15,0.0017,17285.00
+Overcaptured invoices by H1 end,704,0.1165,1165447.00
+"Positive balances less overcaptures (diagnostic, not accounting net)",11586,1.8300,18300127.00
+Unmatched captured attempts created in H1,1541,0.2668,2668046.00
+Failed attempts created in H1 (not receipts),6154,1.0036,10035728.00
 Unmatched captured attempts all observed,4588,0.7269,7269408.00
