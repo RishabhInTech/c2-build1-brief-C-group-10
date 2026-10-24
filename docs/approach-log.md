@@ -7,7 +7,7 @@ The panel reads this file before it reads your notebooks. A panellist will cover
 | # | Part of the work | Approaches considered (two at least) | Chosen | Why this, and not the others | What would have changed the choice | What happened when we tried it | Owner | Date |
 |---|---|---|---|---|---|---|---|---|
 | 0 | *Example: matching invoice ids to payment references* | *(a) Strip the prefix and match on digits. (b) Match on amount and date within two days. (c) Both, and keep the rows where they disagree.* | *(c)* | *(a) alone matched 91 percent and silently paired two invoices with one payment. (b) alone could not separate same-day same-amount visits. Together they flag what each misses.* | *A shared id in both feeds would have made (a) enough.* | *96 percent matched. The 4 percent became finance's list.* | *example* | *example* |
-| 1 | Which table to count tests from | | | | | | | |
+| 1 | Which table to count tests from | Count booking records, collection rows, result rows, or booking-test lines | Use nonblank test lines from the legacy and Nova booking tables, grouped by booking creation date; exclude superseded records marked `rescheduled` | Bookings are the source for booked volume and align with the plan's unit; collections and results record later journey steps and can be incomplete or delayed | If the plan is defined on completed tests, use validated result events and agree a result-date window first | H1 active booked volume was 436,094 lines in 2025 and 451,332 in 2026; excluding 3,541 superseded 2026 lines gives +3.49% growth | Rishabh | 2026-10-24 |
 | 2 | How to define the period (first half, both years) | | | | | | | |
 | 3 | Profiling: what to check in each table | | | | | | | |
 | 4 | Duplicates: the identity rule | | | | | | | |
