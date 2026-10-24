@@ -28,5 +28,9 @@ The team selected Brief C as the final board-facing brief. `clean_brief_c.py` cr
 | `brief_c/finance_bridge_summary.csv` | H1 bridge item | Reconciled row counts, amounts in crore and exact rupees |
 | `brief_c/finance_bridge_summary.json` | H1 bridge and source checks | Period, cutoff, mapping coverage, balance, unmatched capture and settlement diagnostic |
 | `brief_c/finance_all_period_summary.csv` | All supplied finance periods | Invoice total, gross captured total, safely matched captures and unmatched captures |
+| `brief_c/finance_outstanding_by_invoice_month.csv` | H1 invoice month | Billed amount, open balances at close and observation cutoff, and later captured amount |
+| `brief_c/finance_outstanding_by_city_channel.csv` | H1 invoice city and channel | Billed value, open balance counts/amounts at both cutoffs, and open balance as a share of billing |
+| `brief_c/finance_open_balance_age.csv` | Invoice-age band at 15 July | Open invoice count and value by elapsed invoice age; not contractual delinquency |
+| `brief_c/finance_unmatched_capture_breakdown.csv` | H1 unmatched capture method and reference shape | Attempt counts and exact captured amount, without payment IDs |
 
 See [`docs/brief-c-analysis.md`](../docs/brief-c-analysis.md) for the board sentence, bridge definitions, settlement limitation and rebuild command. Transaction-level Finance action lists stay local under the ignored `data/clean/brief_c/actions/` folder.

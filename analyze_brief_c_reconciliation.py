@@ -81,6 +81,49 @@ def main():
     positive = (cohort["amount_value"] - cohort["paid_value"]).clip(lower=0)
     overcapture = (cohort["paid_value"] - cohort["amount_value"]).clip(lower=0)
     later_paid = no_capture & (cohort["observed_paid_value"] > 0)
+    cohort["balance_at_close"] = positive
+    cohort["balance_at_cutoff"] = (
+        cohort["amount_value"] - cohort["observed_paid_value"]
+    ).clip(lower=0)
+    cohort["late_captured_value"] = (
+        cohort["observed_paid_value"] - cohort["paid_value"]
+    ).clip(lower=0)
+    cohort["open_at_close"] = (positive > 0).astype(int)
+    cohort["open_at_cutoff"] = (cohort["balance_at_cutoff"] > 0).astype(int)
+    cohort["late_capture_invoice"] = (cohort["late_captured_value"] > 0).astype(int)
+
+    detail_fields = {
+        "invoice_count": ("amount_value", "size"),
+        "billed_rs": ("amount_value", "sum"),
+        "open_invoices_at_close": ("open_at_close", "sum"),
+        "positive_balance_at_close_rs": ("balance_at_close", "sum"),
+        "late_capture_invoices": ("late_capture_invoice", "sum"),
+        "late_captured_rs": ("late_captured_value", "sum"),
+        "open_invoices_at_cutoff": ("open_at_cutoff", "sum"),
+        "positive_balance_at_cutoff_rs": ("balance_at_cutoff", "sum"),
+    }
+
+    def write_group_summary(frame, groups, filename):
+        grouped = frame.groupby(groups, observed=True, dropna=False).agg(**detail_fields).reset_index()
+        money_fields = [name for name in grouped if name.endswith("_rs")]
+        for field in money_fields:
+            grouped[field] = grouped[field].map(rupees)
+        grouped["positive_balance_pct_billed_at_cutoff"] = grouped.apply(
+            lambda row: f"{Decimal(row['positive_balance_at_cutoff_rs']) / Decimal(row['billed_rs']) * 100:.2f}",
+            axis=1,
+        )
+        grouped.to_csv(output / filename, index=False)
+
+    write_group_summary(cohort, ["city", "channel"], "finance_outstanding_by_city_channel.csv")
+    cohort["invoice_month"] = cohort["invoice_date"].dt.strftime("%Y-%m")
+    write_group_summary(cohort, ["invoice_month"], "finance_outstanding_by_invoice_month.csv")
+
+    open_at_cutoff = cohort[cohort["balance_at_cutoff"] > 0].copy()
+    age_days = (pd.Timestamp(args.observation_cutoff) - open_at_cutoff["invoice_date"]).dt.days
+    open_at_cutoff["invoice_age_at_cutoff"] = pd.cut(
+        age_days, [-1, 30, 60, 90, float("inf")], labels=["0-30", "31-60", "61-90", "91+"]
+    )
+    write_group_summary(open_at_cutoff, ["invoice_age_at_cutoff"], "finance_open_balance_age.csv")
 
     # These row-level lists stay in the ignored local data folder.
     open_rows = cohort[positive > 0].copy()
@@ -97,6 +140,15 @@ def main():
     h1_unmatched[["payment_id", "invoice_ref_raw", "invoice_ref", "amount_rs", "status", "method",
                  "settlement_id", "created_at_ist", "source_file", "source_row"]].to_csv(
         action_dir / "h1_unmatched_captures.csv", index=False)
+    h1_unmatched = h1_unmatched.copy()
+    h1_unmatched["reference_shape"] = h1_unmatched["invoice_ref"].str.replace(
+        r"\d", "9", regex=True
+    ).replace("", "(blank)")
+    unmatched_summary = h1_unmatched.groupby(
+        ["method", "reference_shape"], observed=True, dropna=False
+    ).agg(attempts=("payment_id", "size"), amount_rs=("amount_value", "sum")).reset_index()
+    unmatched_summary["amount_rs"] = unmatched_summary["amount_rs"].map(rupees)
+    unmatched_summary.to_csv(output / "finance_unmatched_capture_breakdown.csv", index=False)
     all_captured = payments[payments["status"] == "captured"]
     all_unmatched = all_captured[all_captured["mapped_invoice_id"].isna()]
     all_matched = all_captured[all_captured["mapped_invoice_id"].notna()]
