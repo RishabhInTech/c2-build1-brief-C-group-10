@@ -15,7 +15,7 @@ Our task is to explain the difference between the amount invoiced and the amount
 
 ## 3. The Question Dr. Menon Did Not Ask
 
-[Our group will identify one additional question that could affect the finance controller's decision and explain why it matters.]
+
 
 ## 4. Translation into the Method
 
@@ -26,7 +26,7 @@ Our task is to explain the difference between the amount invoiced and the amount
 | How much of the gap is only timing? | Quarter-end timing analysis | Identify payments received after the quarter closed and determine how much of the quarter-end gap they explain. |
 | Do both sides reconcile? | Reconciliation and validation | Check that the invoiced-to-collected bridge is supported by counts and amounts on both sides. |
 
-[Confirm the method names against the methods taught in Week 1 and Week 2.]
+
 
 ## 5. What Does Not Transfer from Retail
 
@@ -38,11 +38,11 @@ Our task is to explain the difference between the amount invoiced and the amount
 
 ## 6. Our Prediction Before Opening the Data
 
-**Date:** [Enter the actual date the group recorded its prediction.]
+**Date:** 24/10/2026
 
-Before opening the data, we predicted that [write the group's original prediction about the main cause of the invoiced-to-collected gap].
+Before opening the data, we predicted that the payment failures are the cause of challenge.
 
-We expected this because [write the reason discussed by the group before examining the data].
+We expected this because we have seen most cases of payment failures through applications.
 
 This prediction will remain unchanged. After the analysis, we will compare it with the findings and explain whether the evidence supports it.
 
@@ -99,8 +99,6 @@ This prediction will remain unchanged. After the analysis, we will compare it wi
 ## 9. Done Looks Like
 
 The project is complete when finance has a bridge from invoiced to collected, with every bar labelled by both count and amount, the two sides reconcile, and the results provide a list of records that finance can investigate.
-
-**Our completion check:** [Record the final reconciliation checks, unresolved differences, and evidence that the reported counts and amounts can be reproduced.]
 
 ## 10. Who Signs Off?
 
