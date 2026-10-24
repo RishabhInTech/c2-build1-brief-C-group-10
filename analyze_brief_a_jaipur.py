@@ -3,9 +3,10 @@
 Run from the project root:
     python analyze_brief_a_jaipur.py --data-dir PATH_TO_CLEANED
 
-The primary metric is one nonblank booking test line, grouped by booking
-created_at month. Plan is compared only for 2026 H1. Results/collections are
-separate operational signals, not substitutes for the plan metric.
+The primary metric is one nonblank active booking-test line, grouped by the
+scheduled test month (`slot_at`). Plan is compared only for 2026 H1.
+Results/collections are separate operational signals, not substitutes for the
+plan metric.
 """
 
 import argparse
@@ -70,12 +71,13 @@ def main():
     test = Counter()
 
     for row in read_rows(data_dir, "bookings.csv"):
-        month = row["created_at"][:7]
+        month = row["slot_at"][:7]
         year, month_num = month[:4], month[5:7]
         code = row["test_code"].strip()
 
         # Exclude out-of-period rows and blank/unknown test lines from volume.
-        if year not in YEARS or month_num not in MONTHS or not code:
+        if (year not in YEARS or month_num not in MONTHS or not code
+                or row.get("booking_status", "").strip().lower() == "rescheduled"):
             continue
 
         city = row["city"]
@@ -173,12 +175,13 @@ def main():
 
     booked_lines = Counter()
     for row in read_rows(data_dir, "bookings.csv"):
-        month = row["created_at"][:7]
+        month = row["slot_at"][:7]
         if (
             row["city"] == "Jaipur"
             and month[:4] in YEARS
             and month[5:7] in MONTHS
             and row["test_code"].strip()
+            and row.get("booking_status", "").strip().lower() != "rescheduled"
         ):
             booked_lines[(month[:4], row["channel"], row["booking_id"], row["test_code"])] += 1
 

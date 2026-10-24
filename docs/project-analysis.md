@@ -2,19 +2,20 @@
 
 ## 1. H1 test-volume check
 
-**No: on the active-booking definition, H1 2026 booked test lines grew 3.49%, not 5%.** The earlier unfiltered count was 4.31%, but it included 3,541 test lines on records marked `rescheduled`. The project’s booking rule says Nova creates a replacement booking and marks the old record `rescheduled`; the old line should not be counted again. We exclude those superseded lines and keep the unfiltered total as a sensitivity figure.
+**H1 2026 active scheduled test lines grew 4.97% (about 5%), against 18.32% implied plan growth.** The exact gap is **13.35 percentage points** (13 points using the rounded 5%-versus-18% figures in the handbook). We count each nonblank booking-test line by its scheduled test date (`slot_at`), across Ahmedabad, Bengaluru, Chennai, Hyderabad, Jaipur and Pune, and exclude 3,541 superseded records marked `rescheduled`.
 
-After that adjustment, H1 2026 has **451,332** active test lines versus **436,094** in H1 2025, up **15,238**. The 2026 six-city plan is **515,740** lines, equivalent to **18.26% growth** over the 2025 baseline. Actual volume reached **87.51% of plan** and finished **64,408 lines short**, a **14.77 percentage-point** gap between actual and implied plan growth.
+H1 2026 has **457,539** active scheduled test lines versus **435,880** in H1 2025, an increase of **21,659**. The six-city plan is **515,740** lines, equivalent to **18.32% growth** over the scheduled-date baseline. Actual volume reached **88.72% of plan** and finished **58,201 lines short**.
 
-The measure counts one row per booking-test line with a nonblank `test_code`, grouped by `created_at` month, across Ahmedabad, Bengaluru, Chennai, Hyderabad, Jaipur and Pune. It compares January–June 2026 with January–June 2025 only. Both actual growth and plan growth use the **436,094 active H1 2025 lines** as their denominator; neither uses full-year 2025. It excludes `booking_status = rescheduled` from H1 2026 per the booking identity rule in notebook 03. No H1 2025 test lines were marked `rescheduled`, so the adjustment affects only the 2026 count. The target is the sum of the six cities' January–June monthly targets in `plan_2026_h1.csv`.
+The plan is monthly test-volume targets, so `slot_at` assigns each booked test to the month in which it is scheduled, rather than when the booking was created. Both actual and plan growth use the **435,880 active H1 2025 scheduled lines** as their denominator; neither uses full-year 2025. H1 2026 excludes `booking_status = rescheduled` per the booking identity rule in notebook 03. The target is the sum of the six cities' January–June monthly targets in `plan_2026_h1.csv`.
 
 ```text
-Active H1 2026 lines = 454,873 raw lines − 3,541 superseded reschedule lines = 451,332
-Actual growth = (451,332 / 436,094 − 1) × 100 = 3.49%
-Plan growth   = (515,740 / 436,094 − 1) × 100 = 18.26%
-Plan attainment = 451,332 / 515,740 × 100 = 87.51%
-Shortfall = 451,332 − 515,740 = −64,408 test lines
-Sensitivity: 454,873 / 436,094 − 1 = 4.31% if rescheduled rows are retained
+Active scheduled H1 2026 lines = 461,080 raw lines − 3,541 superseded reschedule lines = 457,539
+Actual growth = (457,539 / 435,880 − 1) × 100 = 4.97% (rounds to 5%)
+Plan growth   = (515,740 / 435,880 − 1) × 100 = 18.32%
+Plan attainment = 457,539 / 515,740 × 100 = 88.72%
+Shortfall = 457,539 − 515,740 = −58,201 test lines
+Sensitivity: 461,080 / 435,880 − 1 = 5.78% if superseded rows are retained
+Booking-created-date sensitivity: 451,332 / 436,094 − 1 = 3.49%
 ```
 
 Reproduce the primary counts and city/month/channel tables with `analyze_h1_volume.py` using the full cleaned folder:
@@ -23,41 +24,50 @@ Reproduce the primary counts and city/month/channel tables with `analyze_h1_volu
 python analyze_h1_volume.py --data-dir "<path-to-full-cleaned-folder>" --output-dir outputs
 ```
 
-Confirm with the plan owner that targets mean active booked test lines. If the plan instead counts all booking records or completed lab tests, the denominator and outcome definition must be aligned before board use.
+The scheduled-date calculation reproduces the handbook's rounded 5% from the supplied booking extract. It is a booked/scheduled-volume measure, not a count of tests completed by result date; confirm that the plan owner also defines its target on scheduled test lines before board use. The booking-created-date sensitivity is lower because booking creation and scheduled test dates can fall in different months or halves.
 
 ### Where the plan gap sits
 
 All six cities finished below plan. Chennai has the largest shortfall after removing superseded rows; Jaipur has the lowest attainment and the largest year-over-year decline.
 
-| City | H1 2025 lines | H1 2026 active lines | YoY growth | Plan | Attainment | Lines below plan |
+| City | H1 2025 scheduled lines | H1 2026 active scheduled lines | YoY growth | Plan | Attainment | Lines below plan |
 |---|---:|---:|---:|---:|---:|---:|
-| Ahmedabad | 76,910 | 83,770 | +8.92% | 90,773 | 92.29% | 7,003 |
-| Bengaluru | 100,007 | 106,058 | +6.05% | 120,085 | 88.32% | 14,027 |
-| Chennai | 80,292 | 79,671 | −0.77% | 93,912 | 84.84% | 14,241 |
-| Hyderabad | 73,117 | 77,533 | +6.04% | 86,421 | 89.72% | 8,888 |
-| Jaipur | 45,057 | 39,691 | −11.91% | 52,372 | 75.79% | 12,681 |
-| Pune | 60,711 | 64,609 | +6.42% | 72,177 | 89.51% | 7,568 |
-| **All cities** | **436,094** | **451,332** | **+3.49%** | **515,740** | **87.51%** | **64,408** |
+| Ahmedabad | 76,853 | 84,986 | +10.58% | 90,773 | 93.62% | 5,787 |
+| Bengaluru | 99,991 | 107,543 | +7.55% | 120,085 | 89.56% | 12,542 |
+| Chennai | 80,195 | 80,718 | +0.65% | 93,912 | 85.95% | 13,194 |
+| Hyderabad | 73,162 | 78,575 | +7.40% | 86,421 | 90.92% | 7,846 |
+| Jaipur | 45,095 | 40,214 | −10.82% | 52,372 | 76.79% | 12,158 |
+| Pune | 60,584 | 65,503 | +8.12% | 72,177 | 90.75% | 6,674 |
+| **All cities** | **435,880** | **457,539** | **+4.97%** | **515,740** | **88.72%** | **58,201** |
 
-The monthly view misses plan in every month. June has the largest gap at 16,015 lines and is the only month below its 2025 level: 68,254 versus 70,892, down 3.72%. See [`brief_a_h1_monthly.csv`](../outputs/brief_a_h1_monthly.csv) and [`brief_a_b_city_summary.csv`](../outputs/brief_a_b_city_summary.csv).
+Every month missed plan, while all six months were above their 2025 scheduled volume. March had the largest monthly shortfall (**11,208 lines**); May was close behind at **11,020**. See [`brief_a_h1_monthly.csv`](../outputs/brief_a_h1_monthly.csv) and [`brief_a_b_city_summary.csv`](../outputs/brief_a_b_city_summary.csv).
+
+| Month | H1 2025 | H1 2026 active | YoY growth | Plan | Attainment | Lines below plan |
+|---|---:|---:|---:|---:|---:|---:|
+| January | 73,512 | 77,239 | +5.07% | 87,002 | 88.78% | 9,763 |
+| February | 72,931 | 80,037 | +9.74% | 86,293 | 92.75% | 6,256 |
+| March | 74,300 | 76,674 | +3.20% | 87,882 | 87.25% | 11,208 |
+| April | 72,346 | 75,213 | +3.96% | 85,616 | 87.85% | 10,403 |
+| May | 71,566 | 73,658 | +2.92% | 84,678 | 86.99% | 11,020 |
+| June | 71,225 | 74,718 | +4.90% | 84,269 | 88.67% | 9,551 |
 
 ### What changed in the volume mix
 
 | Channel | H1 2025 | H1 2026 active | Change | YoY |
 |---|---:|---:|---:|---:|
-| Clinic | 286,997 | 249,808 | −37,189 | −12.96% |
-| Home | 149,097 | 201,524 | +52,427 | +35.17% |
-| **Total** | **436,094** | **451,332** | **+15,238** | **+3.49%** |
+| Clinic | 286,905 | 252,868 | −34,037 | −11.86% |
+| Home | 148,975 | 204,671 | +55,696 | +37.39% |
+| **Total** | **435,880** | **457,539** | **+21,659** | **+4.97%** |
 
 Clinic lines fell in every city while home lines rose in every city. The home increase partly offset the clinic decline, leaving modest net growth. This identifies the mix behind the total; it does not establish why clinic volume fell or whether the plan's channel assumptions were realistic. City-channel details are in [`brief_a_h1_channel_by_city.csv`](../outputs/brief_a_h1_channel_by_city.csv).
 
 ### What the migration check can and cannot say
 
-The two cities that migrated to Nova reached 81.6% of plan; the four cities remaining on legacy reached 89.9%. The migration group was already down 3.2% year over year in January–March while the comparison group was up 9.6%. In April–June, the groups were down 6.4% and up 4.0%, respectively. The relative gap improved by 2.3 percentage points after March, but only two cities migrated and their pre-period trend differed. This comparison cannot establish that Nova caused the H1 plan miss.
+The two cities that migrated to Nova reached **82.67%** of plan; the four cities remaining on legacy reached **91.11%**. On scheduled-date volume, the migration group was down **3.11%** year over year in January–March while the comparison group was up **9.71%**. In April–June, the groups were down **3.86%** and up **7.02%**, respectively. The pre-adjusted relative change is **+1.93 percentage points**, but only two cities migrated and their pre-period trend differed. This comparison cannot establish that Nova caused the H1 plan miss.
 
-Collection and result joins are coverage diagnostics at different grains, not completed-test rates. Nova-era result matching is lower than legacy matching; timing and mapping need review before treating it as missing volume. The metric here is booked test lines, not lab-completed tests. If the plan tracks completed tests, agree a result-date definition and recalculate before replacing this baseline.
+Collection and result joins are coverage diagnostics at different grains, not completed-test rates. For the scheduled H1 cohort, 2026 Nova bookings had collection matches for **22,856/24,979 bookings (91.5%)** and result matches for **45,056/58,770 test lines (76.7%)**; legacy test-line result matching was about **82%**. These are source-join indicators, not plan volume or completion rates. Result-date diagnostics in [`brief_a_h1_result_date_summary.csv`](../outputs/brief_a_h1_result_date_summary.csv) count 356,442 H1 2025 and 378,160 H1 2026 result events; H1 result timestamps match about **81.0%** of active scheduled lines in either year. The event counts include a few repeated booking-test pairs. Use scheduled dates for plan comparison and result timestamps only for a separately defined completion analysis.
 
-**What we can conclude:** active H1 booked volume grew 3.49%, well below the plan's implied 18.26%; all cities and months missed their targets, with clinic-line declines partly offset by home growth. **What we cannot conclude from these files:** the causal business reason for the clinic decline or plan miss. Next checks are June and Chennai clinic demand, local capacity and marketing, plan assumptions, and booking-to-result coverage.
+**What we can conclude:** active H1 scheduled test volume grew **4.97% (rounds to 5%)**, well below the plan's implied **18.32%**; all cities and months missed plan, with home growth partly offsetting clinic declines. **What we cannot conclude from these files:** the causal business reason for the clinic decline or plan miss, or that a booked/scheduled test was completed. Next checks are the plan's date definition, March and May city performance, local capacity and marketing, and booking-to-result coverage.
 
 ## 2. Finance bridge
 

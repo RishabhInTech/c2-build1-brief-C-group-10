@@ -4,7 +4,7 @@ This folder is the skeleton of your group's repository. Copy it into a new publi
 
 ## Current analysis status
 
-**Analysis order:** first establish H1 test-volume growth against plan, then show the H1 2026 finance bridge. After excluding 3,541 superseded reschedule lines, H1 active booked test lines grew 3.49% (451,332 versus 436,094), against 18.26% implied by plan; the gap is 64,408 lines. The unfiltered sensitivity is 4.31%. The volume result and its limits are in [`docs/project-analysis.md`](docs/project-analysis.md). The final COO question is Brief C: “Which invoices were never paid, which payments match no invoice, and how much of the gap is only timing?” Its H1 bridge is documented in crores, with cutoff, row counts and limitations.
+**Project story:** we first checked H1 test-volume growth and cleaned/profiled the data, used Brief A and B as exploratory analysis, then selected Brief C as the board-facing question. Active booking-test lines by scheduled date (`slot_at`) grew 4.97% (rounds to the handbook's 5%; 457,539 versus 435,880), against 18.32% implied by plan; the shortfall is 58,201 lines. Booking-created-date growth is a 3.49% sensitivity, not the plan-aligned definition. The calculation and limits are in [`docs/project-analysis.md`](docs/project-analysis.md). Brief C asks: “Which invoices were never paid, which payments match no invoice, and how much of the gap is only timing?”
 
 1. **H1 volume first:** see the calculation, city/month/channel breakdown and migration limits in [`docs/project-analysis.md`](docs/project-analysis.md) and [`docs/brief-a-b-analysis.md`](docs/brief-a-b-analysis.md).
 2. **Finance bridge next:** the H1 2026 reconciliation and action lists are in [`docs/brief-c-analysis.md`](docs/brief-c-analysis.md) and [`docs/project-statement.md`](docs/project-statement.md).
@@ -21,7 +21,7 @@ This folder is the skeleton of your group's repository. Copy it into a new publi
 
 Brief-specific aggregate outputs are in [`outputs/`](outputs/README.md). Reusable notebook helpers remain in `src/kalpa/`; these small, reproducible brief workflows are kept as top-level entry points so the team can run them directly.
 
-Full raw and row-level cleaned datasets remain local and are not committed. This follows the starter kit's `data/clean/` and `.gitignore` instructions. Regenerate Brief C tables with the cleaner and a `--source-dir` pointing to the full local data pack; generated files go under `data/clean/brief_c/` in the starter-kit checkout. Only aggregate profiles/outputs and code belong in GitHub.
+Full raw and row-level cleaned datasets remain local and are not committed. Run `python clean_brief_c.py` to read the bundled `data/Build1_DataPack.zip`, or pass `--source-dir` with an unpacked data-pack folder or another ZIP. Then run `python analyze_brief_c_reconciliation.py`. Cleaned rows and Finance action lists stay under the ignored `data/clean/brief_c/`; only aggregate profiles/outputs and code belong in GitHub.
 
 ## What is in the kit
 
@@ -40,7 +40,7 @@ Full raw and row-level cleaned datasets remain local and are not committed. This
 | `docs/interview-bank.md` | The interview questions this project earns you, tied to where you did the thing. | Before the mock; again before the panel. |
 | `docs/diagrams.md`, `docs/diagrams/` | Nine diagrams: system context, data context, HLD, LLD, entity model, booking lifecycle, pull-request sequence, the identity decision flow, the maturity ladder. Mermaid source and PNG. | Redraw the ones your brief changes. |
 | `guides/01` to `07` | Enterprise-grade approach, working style, the documents and why, depth thinking, presentation and interview, stretch ideas, research links. | Scope, then as needed. |
-| `notebooks/01` to `06` | Six starter notebooks that run end to end on the sample in `data/raw`: profile, parallel load and validation, clean and reconcile, SQL, the five methods, the answer and cold run. Each carries interview angles. | Copy, then make them yours. |
+| `notebooks/00` to `06` | Project template and six workflow notebooks: volume/data exploration (A/B supporting work), Brief C finance cleaning and bridge, methods and cold run. | Follow the run order; Brief C is the final board question. |
 | `src/kalpa/` | The shared package the notebooks import: loaders (process pool, chunked reads, vectorised normalisers), models (pydantic contracts), checks (pass or fail, never stops), logs (append to the markdown logs from code). | Extend; every function gets a test. |
 | `sql/` | Schema with constraints, the `\copy` loader, profile, CTE pipelines with window functions and anti-joins, index and EXPLAIN timing, a SQLite seeder for anyone without PostgreSQL. | Notebook 04, and the query you hand to finance. |
 | `tests/` | Ten tests across the package, three cases per helper. `pytest -q`. | When a helper is shared by two notebooks. |
@@ -53,7 +53,10 @@ Full raw and row-level cleaned datasets remain local and are not committed. This
 ```
 pip install pandas numpy pydantic openpyxl matplotlib pytest     # all present in the Codespace image you have used so far
 pytest -q                                                       # 10 passed
-# open notebooks/01_profile.ipynb and Restart and Run All; then 02 to 06 in order
+# Run the Brief C finance bridge from the bundled ZIP:
+python clean_brief_c.py
+python analyze_brief_c_reconciliation.py
+# Run notebooks/01 to 06 for the supporting exploration and final answer
 ```
 
 The full data pack is about 50 MB compressed and 1.3 million booking-test rows across 360 files in three shapes. Notebook 02 reads it with a process pool in about ninety seconds on two cores. The sample runs in a few seconds.

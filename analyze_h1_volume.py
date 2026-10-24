@@ -1,4 +1,4 @@
-"""Compare active H1 booking-test lines with the six-city plan."""
+"""Compare active H1 scheduled booking-test lines with the six-city plan."""
 
 import argparse
 from pathlib import Path
@@ -15,17 +15,26 @@ def main():
     data, output = Path(args.data_dir), Path(args.output_dir)
     output.mkdir(parents=True, exist_ok=True)
     bookings = pd.read_csv(data / "bookings.csv", usecols=[
-        "created_at", "city", "channel", "test_code", "booking_status"
+        "created_at", "slot_at", "city", "channel", "test_code", "booking_status"
     ], dtype="string", low_memory=False)
     plan = pd.read_csv(data / "plan_2026_h1.csv")
 
-    bookings["year"] = bookings["created_at"].str[:4]
-    bookings["month"] = bookings["created_at"].str[5:7]
     coded = bookings["test_code"].fillna("").str.strip().ne("")
+    bookings["year"] = bookings["slot_at"].str[:4]
+    bookings["month"] = bookings["slot_at"].str[5:7]
     h1 = bookings[coded & bookings["year"].isin(["2025", "2026"])
                   & bookings["month"].isin([f"{m:02}" for m in range(1, 7)])].copy()
     h1["rescheduled"] = h1["booking_status"].fillna("").str.lower().eq("rescheduled")
     active = h1[~h1["rescheduled"]]
+    created_date = bookings[coded].copy()
+    created_date["created_year"] = created_date["created_at"].str[:4]
+    created_date = created_date[created_date["created_year"].isin(["2025", "2026"])
+                                & created_date["created_at"].str[5:7].isin(
+                                    [f"{m:02}" for m in range(1, 7)]
+                                )]
+    created_date = created_date[
+        ~created_date["booking_status"].fillna("").str.lower().eq("rescheduled")
+    ]
     cities = sorted(plan["city"].unique())
     targets = plan.assign(month=plan["month"].str[-2:]).groupby(["city", "month"])["target"].sum()
 
@@ -72,6 +81,11 @@ def main():
 
     old, new, raw = int(by_city["2025"].sum()), int(by_city["2026"].sum()), int(raw_2026.sum())
     target = int(by_city["plan"].sum())
+    created_counts = created_date.groupby("created_year", observed=True).size()
+    created_old = int(created_counts.get("2025", 0))
+    created_new = int(created_counts.get("2026", 0))
+    if not created_old:
+        raise ValueError("No active H1 2025 booking-created test lines; cannot calculate sensitivity.")
     summary = pd.DataFrame([{
         "y2025_h1_test_lines": old, "y2026_h1_test_lines": new,
         "actual_yoy_growth_pct": round((new / old - 1) * 100, 2),
@@ -82,12 +96,16 @@ def main():
         "implied_plan_growth_pct": round((target / old - 1) * 100, 2),
         "plan_attainment_pct": round(new / target * 100, 2),
         "variance_vs_plan": new - target,
+        "booking_created_date_y2025_h1_test_lines": created_old,
+        "booking_created_date_y2026_h1_test_lines": created_new,
+        "booking_created_date_growth_pct": round((created_new / created_old - 1) * 100, 2),
     }])
     summary.to_csv(output / "brief_a_h1_overall.csv", index=False)
     row = summary.iloc[0]
-    print(f"Active lines: {new:,} vs {old:,} (+{row.actual_yoy_growth_pct:.2f}%).")
+    print(f"Active scheduled lines: {new:,} vs {old:,} (+{row.actual_yoy_growth_pct:.2f}%).")
     print(f"Plan: {target:,} (+{row.implied_plan_growth_pct:.2f}%); shortfall {target - new:,} lines.")
     print(f"Excluded {raw - new:,} superseded reschedule lines; unfiltered growth was {row.raw_growth_including_rescheduled_pct:.2f}%.")
+    print(f"Booking-created-date sensitivity: {row.booking_created_date_growth_pct:.2f}%.")
 
 
 if __name__ == "__main__":

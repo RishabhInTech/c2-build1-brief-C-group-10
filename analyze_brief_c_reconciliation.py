@@ -180,8 +180,7 @@ def main():
             "Malformed references stay unmatched; amount/date similarity is not used to guess identity.",
             "The settlement comparison is not a bank reconciliation.",
         ],
-        "private_action_lists": [str(action_dir / "h1_invoice_positive_balances.csv"),
-                                 str(action_dir / "h1_unmatched_captures.csv")],
+        "private_action_lists": ["h1_invoice_positive_balances.csv", "h1_unmatched_captures.csv"],
     }
     (output / "finance_bridge_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
 

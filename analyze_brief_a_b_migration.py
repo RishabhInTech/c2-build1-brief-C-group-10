@@ -6,7 +6,7 @@ Run with the full cleaned tables:
 The repo itself intentionally does not contain the full data pack. The default
 searches ./cleaned then ./data/clean; --data-dir can point elsewhere.
 
-Measure: nonblank booking-test lines grouped by booking creation month.
+Measure: nonblank booking-test lines grouped by scheduled test month (`slot_at`).
 Treatment cities: Chennai and Jaipur; Nova activity appears in March and is
 nearly/full in April 2026.
 Comparison cities: Ahmedabad, Bengaluru, Hyderabad and Pune (legacy).
@@ -15,7 +15,7 @@ This is descriptive analysis; it does not prove that migration caused change.
 
 import argparse
 import csv
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 
 
@@ -32,7 +32,7 @@ def rows(data_dir, filename):
 def write_csv(path, records, columns):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=columns, extrasaction="ignore")
+        writer = csv.DictWriter(file, fieldnames=columns, extrasaction="ignore", lineterminator="\n")
         writer.writeheader()
         writer.writerows(records)
 
@@ -74,20 +74,29 @@ def main():
         for r in rows(data_dir, "plan_2026_h1.csv")
     }
     volume = Counter()
+    created_volume = Counter()
     raw_volume = Counter()
     rescheduled_volume = Counter()
     channel_volume = Counter()
     source_volume = Counter()
     system_volume = Counter()
+    scheduled_pairs = defaultdict(set)
     for r in rows(data_dir, "bookings.csv"):
-        created = r["created_at"]
-        year, month = created[:4], created[5:7]
-        if year not in ("2025", "2026") or month not in MONTHS or not (r["test_code"] or "").strip():
-            continue
+        code = (r["test_code"] or "").strip()
+        status = r.get("booking_status", "").strip().lower()
         city = r["city"]
+        created = r.get("created_at", "")
+        created_year, created_month = created[:4], created[5:7]
+        if (code and status != "rescheduled" and created_year in ("2025", "2026")
+                and created_month in MONTHS):
+            created_volume[(created_year, city, created_month)] += 1
+        scheduled = r["slot_at"]
+        year, month = scheduled[:4], scheduled[5:7]
+        if year not in ("2025", "2026") or month not in MONTHS or not code:
+            continue
         key = (year, city, month)
         raw_volume[key] += 1
-        if r.get("booking_status", "").strip().lower() == "rescheduled":
+        if status == "rescheduled":
             rescheduled_volume[key] += 1
             continue
         channel = r["channel"] or "(blank)"
@@ -97,6 +106,7 @@ def main():
         channel_volume[(year, city, month, channel)] += 1
         source_volume[(year, city, month, source)] += 1
         system_volume[(year, city, month, system)] += 1
+        scheduled_pairs[year].add((r["booking_id"], r["test_code"]))
 
     cities = sorted(TREATED | CONTROLS)
     total_2025 = sum(volume[("2025", city, month)] for city in cities for month in MONTHS)
@@ -104,6 +114,8 @@ def main():
     raw_2026 = sum(raw_volume[("2026", city, month)] for city in cities for month in MONTHS)
     rescheduled_2026 = sum(rescheduled_volume[("2026", city, month)] for city in cities for month in MONTHS)
     total_plan = sum(plan[(city, month)] for city in cities for month in MONTHS)
+    created_2025 = sum(created_volume[("2025", city, month)] for city in cities for month in MONTHS)
+    created_2026 = sum(created_volume[("2026", city, month)] for city in cities for month in MONTHS)
     overall_output = [{
         "y2025_h1_test_lines": total_2025,
         "y2026_h1_test_lines": total_2026,
@@ -115,12 +127,17 @@ def main():
         "implied_plan_growth_pct": round(pct(total_2025, total_plan), 2),
         "plan_attainment_pct": round(total_2026 / total_plan * 100, 2),
         "variance_vs_plan": total_2026 - total_plan,
+        "booking_created_date_y2025_h1_test_lines": created_2025,
+        "booking_created_date_y2026_h1_test_lines": created_2026,
+        "booking_created_date_growth_pct": round(pct(created_2025, created_2026), 2),
     }]
     write_csv(output_dir / "brief_a_h1_overall.csv", overall_output,
               ["y2025_h1_test_lines", "y2026_h1_test_lines", "actual_yoy_growth_pct",
                "raw_2026_lines_including_rescheduled", "rescheduled_lines_excluded",
-               "raw_growth_including_rescheduled_pct",
-               "y2026_h1_plan", "implied_plan_growth_pct", "plan_attainment_pct", "variance_vs_plan"])
+               "raw_growth_including_rescheduled_pct", "y2026_h1_plan",
+               "implied_plan_growth_pct", "plan_attainment_pct", "variance_vs_plan",
+               "booking_created_date_y2025_h1_test_lines",
+               "booking_created_date_y2026_h1_test_lines", "booking_created_date_growth_pct"])
     print("H1 all-city headline")
     print(f"  2025={total_2025:,} 2026={total_2026:,} growth={pct(total_2025,total_2026):+.1f}% plan={total_plan:,} implied plan growth={pct(total_2025,total_plan):+.1f}% attainment={total_2026/total_plan*100:.1f}%")
     print(f"  Raw 2026={raw_2026:,}; excluded {rescheduled_2026:,} superseded reschedule lines (raw growth {pct(total_2025,raw_2026):+.1f}%)")
@@ -284,7 +301,7 @@ def main():
     test_line_group = Counter()
     test_line_matches = Counter()
     for r in rows(data_dir, "bookings.csv"):
-        ym = r["created_at"][:7]
+        ym = r["slot_at"][:7]
         code = (r["test_code"] or "").strip()
         if (ym[:4] not in ("2025", "2026") or ym[5:7] not in MONTHS or not code
                 or r.get("booking_status", "").strip().lower() == "rescheduled"):
@@ -301,10 +318,18 @@ def main():
             collection_seen.add(r["booking_id"])
 
     result_pairs = set()
+    result_pairs_by_h1_date = defaultdict(set)
+    result_events_by_h1_date = Counter()
     for r in rows(data_dir, "results.csv"):
-        result_pairs.add((r["booking_id"], r["test_code"]))
+        pair = (r["booking_id"], r["test_code"])
+        result_pairs.add(pair)
+        result_ts = r["result_ts"]
+        result_year, result_month = result_ts[:4], result_ts[5:7]
+        if result_year in ("2025", "2026") and result_month in MONTHS:
+            result_events_by_h1_date[result_year] += 1
+            result_pairs_by_h1_date[result_year].add(pair)
     for r in rows(data_dir, "bookings.csv"):
-        ym = r["created_at"][:7]
+        ym = r["slot_at"][:7]
         code = (r["test_code"] or "").strip()
         if (ym[:4] not in ("2025", "2026") or ym[5:7] not in MONTHS or not code
                 or r.get("booking_status", "").strip().lower() == "rescheduled"):
@@ -335,6 +360,27 @@ def main():
     print("  Collection metric is booking-level; result metric is test-line-level; neither proves completion.")
     write_csv(output_dir / "brief_a_b_join_diagnostics.csv", diagnostics,
               ["year", "group", "source_system", "distinct_bookings", "bookings_with_collection", "collection_booking_match_pct", "test_lines", "test_lines_with_matching_result", "result_test_line_match_pct"])
+
+    result_date_summary = []
+    for year in ("2025", "2026"):
+        scheduled_n = len(scheduled_pairs[year])
+        matched_n = len(scheduled_pairs[year] & result_pairs_by_h1_date[year])
+        result_date_summary.append({
+            "result_year": year,
+            "result_event_rows": result_events_by_h1_date[year],
+            "distinct_result_booking_test_pairs": len(result_pairs_by_h1_date[year]),
+            "active_scheduled_test_lines": scheduled_n,
+            "scheduled_lines_with_h1_result": matched_n,
+            "h1_result_match_pct": round(matched_n / scheduled_n * 100, 2) if scheduled_n else 0,
+        })
+    write_csv(output_dir / "brief_a_h1_result_date_summary.csv", result_date_summary,
+              ["result_year", "result_event_rows", "distinct_result_booking_test_pairs",
+               "active_scheduled_test_lines", "scheduled_lines_with_h1_result", "h1_result_match_pct"])
+    for record in result_date_summary:
+        print(f"  {record['result_year']} result dates: {record['result_event_rows']:,} events, "
+              f"{record['distinct_result_booking_test_pairs']:,} unique booking-test pairs; "
+              f"{record['scheduled_lines_with_h1_result']:,}/{record['active_scheduled_test_lines']:,} "
+              f"scheduled lines have an H1 result timestamp ({record['h1_result_match_pct']:.2f}%).")
 
     print(f"\nWrote summary CSVs to {output_dir}")
     print("Interpretation: a short post-period and only two migrated cities support hypotheses, not a causal claim.")

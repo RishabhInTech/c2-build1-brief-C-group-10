@@ -2,6 +2,16 @@
 
 Each question is tied to the place in the kit where you did the thing. Answer in under a minute, at level three (the number or the mechanism, what moved it, how sure you are). Tags are this programme's own calibration for 0 to 3 year Indian-market roles: [S] staple asked everywhere, [F] frequent in GCC and product screens, [SV] service-major screen opener, [D] differentiator.
 
+## Brief A · H1 volume and plan
+
+| Tag | Question | Where you did it | What a good answer covers |
+|---|---|---|---|
+| [S] | How did you reproduce the handbook's 5% test-volume growth? | `analyze_h1_volume.py`, `docs/project-analysis.md` | Count each nonblank active booking-test line by scheduled test date (`slot_at`) for Jan–Jun in both years. H1 2025 = 435,880; H1 2026 = 457,539; growth = 4.97%, which rounds to 5%. Exclude 3,541 superseded H1 2026 reschedule lines. |
+| [F] | Why use scheduled date rather than booking creation date? | `docs/approach-log.md`, `outputs/brief_a_h1_overall.csv` | The city plan has monthly test-volume targets, so scheduled month aligns the actual cohort to the target month. Booking-created-date growth is 3.49%, a useful sensitivity but a different question. Confirm with the plan owner that the target is scheduled volume. |
+| [F] | How far below plan were you, and what drove the net growth? | `docs/project-analysis.md`, `outputs/brief_a_h1_channel_by_city.csv` | Plan = 515,740, or +18.32% against the 2025 scheduled baseline; actual attainment = 88.72%, short by 58,201 lines. Home grew 55,696 (+37.39%) while clinic fell 34,037 (-11.86%), netting +21,659 (+4.97%). Every city and month missed plan. |
+| [D] | Does the result-date join tell you how many tests were completed? | `outputs/brief_a_h1_result_date_summary.csv` | No. About 81% of active scheduled lines match an H1 result timestamp; result timing, source coverage and legitimate no-result outcomes can affect that match. Treat it as a coverage diagnostic, not a completion rate or an alternative plan measure. |
+| [F] | Did Nova cause the H1 miss? | `docs/brief-a-b-analysis.md`, `outputs/brief_a_b_period_summary.csv` | The data do not establish causation. The treated cities had different pre-period growth, only two cities migrated, and the scheduled-date pre-adjusted estimate is +1.93 percentage points. It is descriptive and should not be framed as a causal effect. |
+
 ## pandas
 
 | Tag | Question | Where you did it | What a good answer covers |
