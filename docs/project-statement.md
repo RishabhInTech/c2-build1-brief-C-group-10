@@ -1,6 +1,5 @@
 
-# Project Statement — Brief C: Money
-**Group 10**
+# Project Statement — Brief C: Money Group 10
 
 ## 1. Dr. Menon's Words
 
