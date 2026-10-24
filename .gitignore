@@ -5,6 +5,14 @@ __pycache__/
 .DS_Store
 data/clean/*.csv
 !data/clean/README.md
-data/clean/brief_c/*.csv
-data/clean/brief_c/*.json
-data/clean/brief_c/actions/
+
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+data/clean/*.csv
+!data/clean/README.md
+data/Build1_DataPack.zip
+
+
