@@ -6,6 +6,8 @@ import sys
 import zipfile
 from pathlib import Path
 
+import pandas as pd
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -73,3 +75,14 @@ def test_zip_cleaning_and_h1_bridge(tmp_path):
     assert attempts["unmatched_capture_rows"] == 1
     assert attempts["unmatched_capture_amount_rs"] == "25.00"
     assert summary["settlement_period"]["gross_rs"] == "60.00"
+    city = pd.read_csv(output / "finance_outstanding_by_city_channel.csv", dtype=str)
+    month = pd.read_csv(output / "finance_outstanding_by_invoice_month.csv", dtype=str)
+    ages = pd.read_csv(output / "finance_open_balance_age.csv", dtype=str)
+    unmatched = pd.read_csv(output / "finance_unmatched_capture_breakdown.csv", dtype=str)
+    assert len(city) == 2
+    assert city.set_index("city")["positive_balance_pct_billed_at_cutoff"].to_dict() == {
+        "Jaipur": "40.00", "Pune": "0.00"
+    }
+    assert month["positive_balance_at_cutoff_rs"].tolist() == ["40.00"]
+    assert ages["invoice_count"].astype(int).sum() == 1
+    assert unmatched["attempts"].astype(int).sum() == 1
