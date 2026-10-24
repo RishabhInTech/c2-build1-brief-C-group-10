@@ -6,4 +6,6 @@ An empty log next to notebooks that read like a tutorial is a claim the panel wi
 
 | # | Date | Who | Tool | What we asked (one line) | What we did with the answer |
 |---|---|---|---|---|---|
-| 1 | | | | | |
+| 1 | 2026-10-22 | Me | OpenAI | Explain the difference between captured payments and outstanding invoice balances. | Used the explanation to understand the reconciliation columns and interpret them in my own words. |
+| 2 | 2026-10-23 | Me | OpenAI | Explain the difference between failed payment attempts and unmatched successful payments. | Used the explanation to distinguish the metrics and understand what each amount represents. |
+| 3 | 2026-10-24 | Me | OpenAI | Explain the difference between overpaid, partially paid and unpaid invoices. | Used the explanation to understand the invoice status categories and interpret them in my own words. |
