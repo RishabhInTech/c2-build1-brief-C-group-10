@@ -14,7 +14,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 IST = ZoneInfo("Asia/Kolkata")
 ID_PATTERNS = {
     "invoice_id": r"INV-\d{4}-\d{6}",

@@ -6,7 +6,7 @@
 
 H1 2026 has **457,539** active scheduled test lines versus **435,880** in H1 2025, an increase of **21,659**. The six-city plan is **515,740** lines, equivalent to **18.32% growth** over the scheduled-date baseline. Actual volume reached **88.72% of plan** and finished **58,201 lines short**.
 
-The plan is monthly test-volume targets, so `slot_at` assigns each booked test to the month in which it is scheduled, rather than when the booking was created. Both actual and plan growth use the **435,880 active H1 2025 scheduled lines** as their denominator; neither uses full-year 2025. H1 2026 excludes `booking_status = rescheduled` per the booking identity rule in notebook 03. The target is the sum of the six cities' January–June monthly targets in `plan_2026_h1.csv`.
+The plan is monthly test-volume targets, so `slot_at` assigns each booked test to the month in which it is scheduled, rather than when the booking was created. Both actual and plan growth use the **435,880 active H1 2025 scheduled lines** as their denominator; neither uses full-year 2025. H1 2026 excludes `booking_status = rescheduled` per the booking identity rule in [Notebook 01](../notebooks/01_h1_growth_and_brief_ab.ipynb). The target is the sum of the six cities' January–June monthly targets in `plan_2026_h1.csv`.
 
 ```text
 Active scheduled H1 2026 lines = 461,080 raw lines − 3,541 superseded reschedule lines = 457,539
@@ -18,13 +18,13 @@ Sensitivity: 461,080 / 435,880 − 1 = 5.78% if superseded rows are retained
 Booking-created-date sensitivity: 451,332 / 436,094 − 1 = 3.49%
 ```
 
-Reproduce the primary counts and city/month/channel tables with `analyze_h1_volume.py` using the full cleaned folder:
+Reproduce the H1 headline and the city/month/channel and migration cuts after Notebook 01 has written `bookings_all.csv.gz`:
 
 ```powershell
-python analyze_h1_volume.py --data-dir "<path-to-full-cleaned-folder>" --output-dir outputs
+python notebooks/_scripts/analyze_brief_a_b_migration.py --data-dir data/clean --output-dir outputs
 ```
 
-The scheduled-date calculation reproduces the handbook's rounded 5% from the supplied booking extract. It is a booked/scheduled-volume measure, not a count of tests completed by result date; confirm that the plan owner also defines its target on scheduled test lines before board use. The booking-created-date sensitivity is lower because booking creation and scheduled test dates can fall in different months or halves.
+The helper reads the six-city plan and, when needed, collection and result tables from `data/raw/`. The scheduled-date calculation reproduces the handbook's rounded 5% from the supplied booking extract. It is a booked/scheduled-volume measure, not a count of tests completed by result date; confirm that the plan owner also defines its target on scheduled test lines before board use. The booking-created-date sensitivity is lower because booking creation and scheduled test dates can fall in different months or halves.
 
 ### Where the plan gap sits
 

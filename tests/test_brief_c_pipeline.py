@@ -55,12 +55,12 @@ def test_zip_cleaning_and_h1_bridge(tmp_path):
 
     clean, output, actions = (tmp_path / name for name in ("clean", "output", "actions"))
     subprocess.run(
-        [sys.executable, str(ROOT / "clean_brief_c.py"), "--source-dir", str(archive),
+        [sys.executable, str(ROOT / "notebooks" / "_scripts" / "clean_brief_c.py"), "--source-dir", str(archive),
          "--output-dir", str(clean)],
         cwd=ROOT, check=True, capture_output=True, text=True,
     )
     subprocess.run(
-        [sys.executable, str(ROOT / "analyze_brief_c_reconciliation.py"), "--data-dir", str(clean),
+        [sys.executable, str(ROOT / "notebooks" / "_scripts" / "analyze_brief_c_reconciliation.py"), "--data-dir", str(clean),
          "--output-dir", str(output), "--action-dir", str(actions)],
         cwd=ROOT, check=True, capture_output=True, text=True,
     )

@@ -61,11 +61,11 @@ The 181 settlement rows dated in H1 show gross **₹25.145 crore**, fees **₹0.
 
 ## Audit and rebuild
 
-The cleaner ([`clean_brief_c.py`](../clean_brief_c.py)) reads the bundled ZIP by default, or an unpacked data-pack folder passed with `--source-dir`. It writes row-level tables locally under the Git-ignored `data/clean/brief_c/`. The analysis script ([`analyze_brief_c_reconciliation.py`](../analyze_brief_c_reconciliation.py)) reads rupee amounts as exact decimals and applies H1 boundaries in `Asia/Kolkata`; H1 closes at 30 June 23:59 IST.
+The cleaner ([`clean_brief_c.py`](../notebooks/_scripts/clean_brief_c.py)) reads the local data pack, or an unpacked data-pack folder passed with `--source-dir`. It writes row-level tables locally under the Git-ignored `data/clean/brief_c/`. The analysis script ([`analyze_brief_c_reconciliation.py`](../notebooks/_scripts/analyze_brief_c_reconciliation.py)) reads rupee amounts as exact decimals and applies H1 boundaries in `Asia/Kolkata`; H1 closes at 30 June 23:59 IST.
 
 ```powershell
-python clean_brief_c.py
-python analyze_brief_c_reconciliation.py --data-dir data/clean/brief_c --output-dir outputs/brief_c --year 2026 --observation-cutoff 2026-07-15
+python notebooks/_scripts/clean_brief_c.py --source-dir data/Build1_DataPack.zip --output-dir data/clean/brief_c
+python notebooks/_scripts/analyze_brief_c_reconciliation.py --data-dir data/clean/brief_c --output-dir outputs/brief_c --year 2026 --observation-cutoff 2026-07-15
 ```
 
 [`finance_bridge_summary.csv`](../outputs/brief_c/finance_bridge_summary.csv) and [`finance_all_period_summary.csv`](../outputs/brief_c/finance_all_period_summary.csv) show crores alongside exact rupee amounts for audit. The JSON summary retains exact rupee values, dates, counts, matching coverage and limitations. Row-level Finance action lists are written under the ignored `data/clean/brief_c/actions/` folder and are not committed.
@@ -74,4 +74,4 @@ The reconciliation command also regenerates the four aggregate follow-up tables 
 
 The bridge remains provisional until Finance confirms source completeness, refunds/reversals, cash coverage, and the settlement-to-bank match. A missing captured gateway match does not prove permanent nonpayment.
 
-**SQL handoff gap:** the committed Brief C bridge is currently implemented and validated in Python, not as a Finance-ready SQL reconciliation. Before describing SQL as a second implementation, add `sql/06_brief_c.sql` and reconcile its invoice counts, capture counts, and exact rupee amounts against these outputs.
+**Implementation scope:** the reproducible finance bridge is implemented in Python and run from the Brief C notebook. This submission does not claim an equivalent SQL bridge.

@@ -18,15 +18,16 @@ import csv
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from kalpa.analysis_inputs import booking_file, project_root, table_rows
+
 
 MONTHS = ("01", "02", "03", "04", "05", "06")
 TREATED = {"Chennai", "Jaipur"}
 CONTROLS = {"Ahmedabad", "Bengaluru", "Hyderabad", "Pune"}
 
 
-def rows(data_dir, filename):
-    with (data_dir / filename).open(encoding="utf-8", newline="") as file:
-        yield from csv.DictReader(file)
+def rows(data_dir, raw_dir, filename):
+    yield from table_rows(data_dir, raw_dir, filename)
 
 
 def write_csv(path, records, columns):
@@ -44,34 +45,37 @@ def pct(old, new):
 def resolve_data_dir(raw_path):
     if raw_path:
         path = Path(raw_path).expanduser().resolve()
-        if not (path / "bookings.csv").exists():
-            raise FileNotFoundError(f"No bookings.csv in data directory: {path}")
+        booking_file(path)
         return path
-    root = Path(__file__).resolve().parent
+    root = project_root()
     for candidate in (root / "cleaned", root / "data" / "clean"):
-        if (candidate / "bookings.csv").exists():
+        try:
+            booking_file(candidate)
             return candidate
+        except FileNotFoundError:
+            continue
     raise FileNotFoundError(
-        "Cleaned tables not found. Pass --data-dir PATH containing bookings.csv, "
-        "plan_2026_h1.csv, collections.csv and results.csv."
+        "Cleaned booking-test table not found. Pass --data-dir PATH."
     )
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", help="folder containing the cleaned CSV tables")
+    parser.add_argument("--raw-dir", help="raw data pack (defaults to data/raw in the project)")
     parser.add_argument(
         "--output-dir", default="outputs",
         help="where compact result CSVs are written (default: ./outputs)",
     )
     args = parser.parse_args()
     data_dir = resolve_data_dir(args.data_dir)
+    raw_dir = Path(args.raw_dir).expanduser().resolve() if args.raw_dir else project_root() / "data" / "raw"
     output_dir = Path(args.output_dir).expanduser().resolve()
 
     # Count coded booking-test lines and exclude superseded Nova reschedules.
     plan = {
         (r["city"], r["month"][5:7]): int(r["target"])
-        for r in rows(data_dir, "plan_2026_h1.csv")
+        for r in rows(data_dir, raw_dir, "plan_2026_h1.csv")
     }
     volume = Counter()
     created_volume = Counter()
@@ -80,8 +84,10 @@ def main():
     channel_volume = Counter()
     source_volume = Counter()
     system_volume = Counter()
-    scheduled_pairs = defaultdict(set)
-    for r in rows(data_dir, "bookings.csv"):
+    booking_meta = {}
+    booking_pair_meta = {}
+    test_line_group = Counter()
+    for r in rows(data_dir, raw_dir, "bookings.csv"):
         code = (r["test_code"] or "").strip()
         status = r.get("booking_status", "").strip().lower()
         city = r["city"]
@@ -106,7 +112,11 @@ def main():
         channel_volume[(year, city, month, channel)] += 1
         source_volume[(year, city, month, source)] += 1
         system_volume[(year, city, month, system)] += 1
-        scheduled_pairs[year].add((r["booking_id"], r["test_code"]))
+        group = "treated" if city in TREATED else "control"
+        cohort = (year, group, system)
+        booking_meta[r["booking_id"]] = cohort
+        booking_pair_meta[(r["booking_id"], code)] = cohort
+        test_line_group[cohort] += 1
 
     cities = sorted(TREATED | CONTROLS)
     total_2025 = sum(volume[("2025", city, month)] for city in cities for month in MONTHS)
@@ -297,46 +307,26 @@ def main():
 
     # Join diagnostics use two distinct grains: collection coverage per unique
     # booking ID; result coverage per booking-test line. Do not mix denominators.
-    booking_meta = {}
-    test_line_group = Counter()
     test_line_matches = Counter()
-    for r in rows(data_dir, "bookings.csv"):
-        ym = r["slot_at"][:7]
-        code = (r["test_code"] or "").strip()
-        if (ym[:4] not in ("2025", "2026") or ym[5:7] not in MONTHS or not code
-                or r.get("booking_status", "").strip().lower() == "rescheduled"):
-            continue
-        bid = r["booking_id"]
-        group = "treated" if r["city"] in TREATED else "control"
-        key = (ym[:4], group, r["source_system"])
-        booking_meta[bid] = key
-        test_line_group[key] += 1
 
     collection_seen = set()
-    for r in rows(data_dir, "collections.csv"):
+    for r in rows(data_dir, raw_dir, "collections.csv"):
         if r["booking_id"] in booking_meta:
             collection_seen.add(r["booking_id"])
 
-    result_pairs = set()
+    matched_scheduled_pairs = set()
     result_pairs_by_h1_date = defaultdict(set)
     result_events_by_h1_date = Counter()
-    for r in rows(data_dir, "results.csv"):
+    for r in rows(data_dir, raw_dir, "results.csv"):
         pair = (r["booking_id"], r["test_code"])
-        result_pairs.add(pair)
+        if pair in booking_pair_meta:
+            matched_scheduled_pairs.add(pair)
         result_ts = r["result_ts"]
         result_year, result_month = result_ts[:4], result_ts[5:7]
         if result_year in ("2025", "2026") and result_month in MONTHS:
             result_events_by_h1_date[result_year] += 1
             result_pairs_by_h1_date[result_year].add(pair)
-    for r in rows(data_dir, "bookings.csv"):
-        ym = r["slot_at"][:7]
-        code = (r["test_code"] or "").strip()
-        if (ym[:4] not in ("2025", "2026") or ym[5:7] not in MONTHS or not code
-                or r.get("booking_status", "").strip().lower() == "rescheduled"):
-            continue
-        key = booking_meta[r["booking_id"]]
-        if (r["booking_id"], code) in result_pairs:
-            test_line_matches[key] += 1
+    test_line_matches.update(booking_pair_meta[pair] for pair in matched_scheduled_pairs)
 
     booking_counts = Counter(booking_meta.values())
     collection_counts = Counter(booking_meta[bid] for bid in collection_seen)
@@ -363,8 +353,11 @@ def main():
 
     result_date_summary = []
     for year in ("2025", "2026"):
-        scheduled_n = len(scheduled_pairs[year])
-        matched_n = len(scheduled_pairs[year] & result_pairs_by_h1_date[year])
+        scheduled_n = sum(cohort[0] == year for cohort in booking_pair_meta.values())
+        matched_n = sum(
+            pair in booking_pair_meta and booking_pair_meta[pair][0] == year
+            for pair in result_pairs_by_h1_date[year]
+        )
         result_date_summary.append({
             "result_year": year,
             "result_event_rows": result_events_by_h1_date[year],

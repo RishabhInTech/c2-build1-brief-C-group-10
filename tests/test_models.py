@@ -2,7 +2,7 @@
 import sys
 import pathlib
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "notebooks" / "_scripts"))
 from kalpa.models import Booking, Payment, validate_many  # noqa: E402
 
 BASE = {"booking_id": "BK-CHE-202603-000123", "system": "legacy", "created_at": "2026-03-01 09:00", "slot_at": "2026-03-02 10:00",

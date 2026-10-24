@@ -8,7 +8,7 @@ from __future__ import annotations
 import pathlib
 from datetime import date
 
-DOCS = pathlib.Path(__file__).resolve().parents[2] / "docs"
+DOCS = pathlib.Path(__file__).resolve().parents[3] / "docs"
 
 
 def _append_row(path: pathlib.Path, header_fragment: str, cells: list[str]) -> None:
