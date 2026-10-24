@@ -1,0 +1,55 @@
+
+# Brief C — Money: Why Do Our Invoices and Collections Disagree?
+
+## 1. Problem Statement
+
+Kalpa Health wants to understand why the amount invoiced is different from the amount collected. The billing system and payment gateway use different IDs, making it difficult to match invoices with payments.
+
+## 2. Data Used
+
+- **Invoices:** Records of bills raised for patient visits.
+- **Gateway payments:** Records of successful and failed payment attempts.
+- **Settlements:** Records of payment batches, fees and taxes.
+
+## 3. Reconciliation Process
+
+1. Check the data quality of each source table.
+2. Check for missing or duplicate IDs and invalid values.
+3. Standardize invoice references where justified by the data.
+4. Match payment records to invoices using documented matching rules.
+5. Identify unpaid invoices and unmatched payments.
+6. Check overpayments and partial payments.
+7. Reconcile settlement amounts against payment amounts, fees and taxes.
+8. Investigate payments received after the reporting quarter ended.
+9. Recalculate the headline figures after each cleaning decision.
+
+## 4. Key Findings
+
+| Metric | Result |
+|---|---|
+| Total invoices | 470,776 |
+| Total invoiced amount | Approximately ₹73.70 crore |
+| Total successful gateway payments | Approximately ₹71.25 crore |
+| Successful payments unmatched to invoices | Approximately ₹72.69 lakh |
+| Outstanding invoice balances | Approximately ₹3.49 crore |
+| Overpayment amount | Approximately ₹30.78 lakh |
+| Settlement calculation difference | Approximately ₹0 |
+
+
+
+## 5. Understanding the Results
+
+- **Unpaid invoices:** Invoices with a positive outstanding balance after matched successful payments are considered.
+- **Unmatched payments:** Payments that cannot be linked to an invoice using the documented matching rules.
+- **Overpayments:** Amounts by which successful matched payments exceed invoice amounts.
+- **Failed payments:** Unsuccessful payment attempts; these are not successful collections.
+- **Timing differences:** Payments received after quarter-end that relate to invoices from the reporting quarter.
+- **Settlement reconciliation:** A check of whether settlement amounts agree with payment amounts after fees and taxes.
+
+## 6. Limitations
+
+- An unmatched payment does not automatically mean money has been lost.
+- An outstanding invoice does not necessarily mean the customer will never pay.
+- Settlement calculations agreeing does not independently prove that the money reached the bank.
+- Timing differences must be calculated using invoice and payment dates, not assumed from the overall difference between totals.
+
