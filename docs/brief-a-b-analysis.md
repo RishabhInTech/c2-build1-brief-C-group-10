@@ -29,8 +29,7 @@ The files locate the shortfall and show a channel mix shift, but do not establis
 ## Reproducibility
 
 ```powershell
-python analyze_h1_volume.py --data-dir "<path-to-full-cleaned-folder>" --output-dir outputs
-python analyze_brief_a_b_migration.py --data-dir "<path-to-full-cleaned-folder>" --output-dir outputs
+python notebooks/_scripts/analyze_brief_a_b_migration.py --data-dir data/clean --output-dir outputs
 ```
 
-The outputs contain aggregate counts only. The full cleaned tables remain local.
+This helper regenerates the H1 headline, city/month/channel cuts and migration diagnostics from the notebook's `bookings_all.csv.gz` output plus the raw plan, collection and result files under `data/raw/`. The outputs contain aggregate counts only. The full cleaned tables remain local.

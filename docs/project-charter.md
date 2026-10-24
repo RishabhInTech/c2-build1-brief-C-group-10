@@ -52,8 +52,8 @@ Build a traceable H1 2026 bridge from invoice billing to captured payments and b
 
 | Member | Part owned | Notebooks | Also responsible for |
 |---|---|---|---|
-| Rishabh | Initial finance-only cleaning and repository workflow (confirm with team) | 01–03 (proposed; confirm) | Presenting the source profile and explaining cleaning decisions |
-| Teammate names/roles | To be assigned by the group | To be assigned | Review mapping, bridge, SQL and finance exception lists |
+| Rishabh | Analysis coordination, notebook consolidation and Brief C reconciliation | 01–02 | Presenting the source profile and explaining cleaning decisions |
+| Teammate names/roles | To be completed by the group | To be assigned | Review the mapping, bridge, slides and Finance exception lists |
 
 ## 7. Risks, and what we do about them
 

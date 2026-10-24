@@ -6,7 +6,7 @@ Each question is tied to the place in the kit where you did the thing. Answer in
 
 | Tag | Question | Where you did it | What a good answer covers |
 |---|---|---|---|
-| [S] | How did you reproduce the handbook's 5% test-volume growth? | `analyze_h1_volume.py`, `docs/project-analysis.md` | Count each nonblank active booking-test line by scheduled test date (`slot_at`) for Jan–Jun in both years. H1 2025 = 435,880; H1 2026 = 457,539; growth = 4.97%, which rounds to 5%. Exclude 3,541 superseded H1 2026 reschedule lines. |
+| [S] | How did you reproduce the handbook's 5% test-volume growth? | Notebook 01, `docs/project-analysis.md` | Count each nonblank active booking-test line by scheduled test date (`slot_at`) for Jan–Jun in both years. H1 2025 = 435,880; H1 2026 = 457,539; growth = 4.97%, which rounds to 5%. Exclude 3,541 superseded H1 2026 reschedule lines. |
 | [F] | Why use scheduled date rather than booking creation date? | `docs/approach-log.md`, `outputs/brief_a_h1_overall.csv` | The city plan has monthly test-volume targets, so scheduled month aligns the actual cohort to the target month. Booking-created-date growth is 3.49%, a useful sensitivity but a different question. Confirm with the plan owner that the target is scheduled volume. |
 | [F] | How far below plan were you, and what drove the net growth? | `docs/project-analysis.md`, `outputs/brief_a_h1_channel_by_city.csv` | Plan = 515,740, or +18.32% against the 2025 scheduled baseline; actual attainment = 88.72%, short by 58,201 lines. Home grew 55,696 (+37.39%) while clinic fell 34,037 (-11.86%), netting +21,659 (+4.97%). Every city and month missed plan. |
 | [D] | Does the result-date join tell you how many tests were completed? | `outputs/brief_a_h1_result_date_summary.csv` | No. About 81% of active scheduled lines match an H1 result timestamp; result timing, source coverage and legitimate no-result outcomes can affect that match. Treat it as a coverage diagnostic, not a completion rate or an alternative plan measure. |
@@ -16,12 +16,12 @@ Each question is tied to the place in the kit where you did the thing. Answer in
 
 | Tag | Question | Where you did it | What a good answer covers |
 |---|---|---|---|
-| [S] | What does `merge(how='left', validate='one_to_one', indicator=True)` do, and why would you set all three? | 03 | LEFT keeps every left row; validate raises on a cardinality violation instead of fanning out silently; indicator shows which side each row came from, which is the anti-join check. |
-| [S] | Your join grew the row count. What happened and how do you find out? | 03, checks.join_did_not_fan_out | The right key repeats. Group the right side by key and count; separate retries, true duplicates and a wrong key. |
-| [F] | When is `category` the right dtype, and when is it the wrong one? | 01, loaders.LEGACY_DTYPES | Low-cardinality columns: memory and groupby speed. Wrong for ids, and a trap on concat with different category sets. |
-| [F] | `groupby().apply()` was slow. What did you do instead? | 02, records_from_rows | Sort once, find group boundaries with `np.unique(return_index=True)`, slice; or use named aggregations and vectorised string ops. Measure before and after. |
-| [F] | How do you read a CSV too large for memory? | loaders.iter_chunks | `chunksize`, aggregate per chunk, or filter columns with `usecols` and declare dtypes; or load into the database and query. |
-| [D] | Explain `observed=True` in a groupby on categoricals. | 05 | Without it pandas emits every category combination, including empty ones, which pads results and slows the aggregation. |
+| [S] | What does `merge(how='left', validate='one_to_one', indicator=True)` do, and why would you set all three? | Notebook 01 | LEFT keeps every left row; validate raises on a cardinality violation instead of fanning out silently; indicator shows which side each row came from, which is the anti-join check. |
+| [S] | Your join grew the row count. What happened and how do you find out? | Notebook 01, `checks.join_did_not_fan_out` | The right key repeats. Group the right side by key and count; separate retries, true duplicates and a wrong key. |
+| [F] | When is `category` the right dtype, and when is it the wrong one? | Notebook 01, `loaders.LEGACY_DTYPES` | Low-cardinality columns: memory and groupby speed. Wrong for ids, and a trap on concat with different category sets. |
+| [F] | `groupby().apply()` was slow. What did you do instead? | Notebook 01, `records_from_rows` | Sort once, find group boundaries with `np.unique(return_index=True)`, slice; or use named aggregations and vectorised string ops. Measure before and after. |
+| [F] | How do you read a CSV too large for memory? | `notebooks/_scripts/kalpa/loaders.py` | `chunksize`, aggregate per chunk, or filter columns with `usecols` and declare dtypes; or load into a database and query. |
+| [D] | Explain `observed=True` in a groupby on categoricals. | Notebook 01 | Without it pandas emits every category combination, including empty ones, which pads results and slows the aggregation. |
 | [S] | Mean or median for order value, and why? | Week 1 | A single bulk order drags the mean; the median describes the typical visit. Report both when they disagree, and say why. |
 | [D] | What is the difference between `NaN`, `None`, `pd.NA` and `NaT`, and when did it bite you? | 02, 03 | Float NaN, Python None, the nullable-dtype missing marker, and the datetime missing marker; equality tests fail on all of them, so use `isna()`. |
 
@@ -29,46 +29,27 @@ Each question is tied to the place in the kit where you did the thing. Answer in
 
 | Tag | Question | Where you did it | What a good answer covers |
 |---|---|---|---|
-| [F] | What is broadcasting, with an example from your work? | 05 | Arithmetic between arrays of compatible shapes without copying: `tests_per_visit = tests / visits` across a column, or subtracting the network rate from a vector of clinic rates. |
-| [F] | How did you run thousands of shuffles without a Python loop? | 05, shuffle_reference | Recognised the statistic as a count of a binary outcome in one group, so the shuffled distribution is hypergeometric; one vectorised draw. Kept the loop version to show they agree. |
-| [D] | Why is the log decomposition of growth exact when the percentage one is not? | 05, tree | log(a·b·c) = log a + log b + log c, so growth in a product is the sum of log growths; percentages only add approximately for small changes. |
-| [S] | What does setting a seed buy you, and what does it not? | every notebook, CONFIG | Reproducible random draws for the same code and library version; it does not make the analysis correct, and a different NumPy version can change the stream. |
+| [F] | What is broadcasting, with an example from your work? | Notebook 01 | Arithmetic between arrays of compatible shapes without copying, such as dividing test counts by visit counts across a column. |
+| [D] | Why is the log decomposition of growth exact when the percentage one is not? | Notebook 01, growth tree | `log(a·b·c) = log a + log b + log c`, so growth in a product is the sum of log growths; percentages only add approximately for small changes. |
+| [S] | What does setting a seed buy you, and what does it not? | Notebook 01, CONFIG | Reproducible random draws for the same code and library version; it does not make the analysis correct, and a different NumPy version can change the stream. |
 
 ## Pydantic and Python
 
 | Tag | Question | Where you did it | What a good answer covers |
 |---|---|---|---|
-| [F] | What does a pydantic model give you that a DataFrame check does not? | models.Booking | One named contract per record, reused by the loader, the tests and the database; per-field reasons on rejection; normalisation that is explicit. Cost: per-record Python time, so run it once at the boundary. |
-| [F] | `field_validator` against `model_validator`: when each? | models.Booking | Field: one value in isolation (an id shape, a case fold). Model: a rule across fields (slot not before creation). |
-| [S] | Why a process pool rather than threads for parsing files? | loaders.read_many | CPU-bound work under the interpreter lock runs one thread at a time; processes have their own interpreter. Threads for I/O waits. |
-| [F] | What is a generator and where did you use one? | records_from_rows, iter_chunks | A function that yields items lazily, so a million records are never all in memory at once. |
-| [D] | What does `with pd.read_csv(..., chunksize=...) as reader` do that a plain call does not? | loaders.iter_chunks | The context manager closes the file handle when the loop ends or raises. |
-| [D] | How did you make a notebook idempotent? | 03, 06 | Reads only from raw and clean, writes clean with overwrite, no in-place mutation of inputs, no state carried between runs; the cold run proves it. |
-
-## SQL
-
-| Tag | Question | Where you did it | What a good answer covers |
-|---|---|---|---|
-| [S] | Logical order of a SELECT with GROUP BY and HAVING, and why an alias cannot be used in WHERE. | 04 | FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY; WHERE runs before the alias exists. |
-| [S] | INNER against LEFT against FULL OUTER: what does each drop or keep? | sql/04 bridge, anti-join | Matches only; all of the left plus matches; both sides' orphans. The anti-join is LEFT with a NULL test on the right. |
-| [S] | RANK, DENSE_RANK, ROW_NUMBER on a tie. | sql/04 monthly rollup | Gap after the tie; no gap; arbitrary break. The business tells you which. |
-| [F] | When does a window function beat GROUP BY? | sql/04 | When every row must stay and the value is computed over neighbours: LAG, running totals, rank within partition. |
-| [F] | What is a CTE for, and when does it hurt? | sql/04 | Named steps a reader can follow top to bottom; in some engines a CTE is materialised, so a huge one can cost memory. |
-| [F] | A query over a million rows is slow. First three things you look at. | sql/05 | EXPLAIN ANALYZE; whether a scan, a sort or a join dominates; whether an index on the filter or group columns exists and is used. |
-| [D] | Why no foreign key from payments to invoices in your schema? | sql/01 | Orphan payments must load so they can be listed; a foreign key would reject them at load and hide the problem. |
-| [D] | How would you make the bridge query something finance runs every week? | sql/04, appendix stretch | Parameterise the period, add the index the filter needs, assert the two sides reconcile in the query itself, schedule it. |
+| [F] | What does a pydantic model give you that a DataFrame check does not? | `notebooks/_scripts/kalpa/models.py` | One named contract per record; per-field reasons on rejection; explicit normalization. Cost: per-record Python time, so validate at the boundary. |
+| [F] | `field_validator` against `model_validator`: when each? | `notebooks/_scripts/kalpa/models.py` | Field: one value in isolation (an id shape, a case fold). Model: a rule across fields (slot not before creation). |
+| [S] | Why a process pool rather than threads for parsing files? | `notebooks/_scripts/kalpa/loaders.py` | CPU-bound work under the interpreter lock runs one thread at a time; processes have their own interpreter. Threads help with I/O waits. |
+| [F] | What is a generator and where did you use one? | Notebook 01, `records_from_rows` | A function that yields items lazily, so records need not all be held in memory at once. |
+| [D] | How did you make the analysis reproducible? | Notebooks 01–02 | Run the notebooks from a fresh kernel; regenerate clean tables and aggregate outputs from the raw/local pack; keep private row-level files out of Git. |
 
 ## Data and statistics
 
 | Tag | Question | Where you did it | What a good answer covers |
 |---|---|---|---|
-| [S] | The dashboard and Finance disagree by Rs 20 lakh. What do you do first? | 03, 05 bridge | Profile both, agree the period and the definition, reconcile input = matched + unmatched, then classify the gap into timing, unmatched and amount. |
-| [S] | What does p = 0.03 mean, and not mean? | 05 shuffle | Three percent of chance-only worlds are at least this extreme. It says nothing about the probability that the clinic is fine, and nothing about the size of the effect. |
-| [S] | Revenue rose after the discount. Three reasons that is not proof. | 05 fair comparison | Season, selection, mix. |
-| [F] | 42 percent on 12 bookings against 31 percent on 400. Which do you trust? | 05 | The second; the first is noise with a headline. Say the sample size beside every rate. |
-| [F] | Two systems export the same entity with different id formats. How do you reconcile them? | 02, 03 | Trace one entity through both by hand, write the mapping rule, apply it, check the count before and after, list what did not map. |
-| [D] | Your bridge balances. Name one way it could balance and still be wrong. | 05 bridge | Two errors cancelling: a mis-keyed payment counted on the wrong invoice and that invoice's own payment missing. |
-| [D] | Why can every segment fall while the total rises? | 05 fair comparison | Mix: the total is a weighted average and the weights moved toward the segment with the higher level. |
+| [S] | The dashboard and Finance disagree. What do you do first? | Notebook 01 and Notebook 02 | Profile both, agree the period and definition, reconcile input = matched + unmatched, then classify the gap into timing, unmatched and amount. |
+| [F] | Two systems export the same entity with different ID formats. How do you reconcile them? | Notebook 01; `notebooks/_scripts/kalpa/loaders.py` | Trace examples through both, write the mapping rule, check uniqueness and before/after counts, and list what does not map. |
+| [D] | Your bridge balances. Name one way it could balance and still be wrong. | Notebook 02 | Two errors can cancel: a mis-keyed payment counted on the wrong invoice while that invoice's own payment is missing. |
 
 ## The project itself
 

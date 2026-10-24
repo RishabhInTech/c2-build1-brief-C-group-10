@@ -1,86 +1,39 @@
-# Build 1 starter kit · Data to Insight in Kalpa Health
+# Build 1 · Brief C · Invoice-to-capture reconciliation · Group 10
 
-This folder is the skeleton of your group's repository. Copy it into a new public repository on the first day, before any analysis, and fill it as you go. Everything the panel reads lives here; nothing that lives only in a chat or on a laptop counts.
+Dr Menon asks which H1 invoices have no captured payment, which captured attempts cannot be matched to an invoice, and how much of the difference reflects timing. Group 10 first checked test-volume growth and explored Brief A/B, then selected Brief C for the board-facing Finance question. Counting active test lines by scheduled date reproduces the handbook's **4.97% growth (rounds to 5%)**; the invoice bridge shows what remained open at close and at the later observation cutoff.
 
-## Current analysis status
+## The claim
 
-**Project story:** we first checked H1 test-volume growth and cleaned/profiled the data, used Brief A and B as exploratory analysis, then selected Brief C as the board-facing question. Active booking-test lines by scheduled date (`slot_at`) grew 4.97% (rounds to the handbook's 5%; 457,539 versus 435,880), against 18.32% implied by plan; the shortfall is 58,201 lines. Booking-created-date growth is a 3.49% sensitivity, not the plan-aligned definition. The calculation and limits are in [`docs/project-analysis.md`](docs/project-analysis.md). Brief C asks: “Which invoices were never paid, which payments match no invoice, and how much of the gap is only timing?”
+At H1 2026 close, 11,586 of 162,876 invoices (**₹26.828 crore billed**) carried **₹1.947 crore** in positive balances; after later captures, **₹1.648 crore (6.14% of H1 billings)** remained open across 9,824 invoices on 15 July, while 1,541 H1 captures worth **₹0.267 crore** still lacked a safe invoice match—Finance should prioritize June's open invoices and resolve both exception lists before calling balances lost.
 
-1. **H1 volume first:** see the calculation, city/month/channel breakdown and migration limits in [`docs/project-analysis.md`](docs/project-analysis.md) and [`docs/brief-a-b-analysis.md`](docs/brief-a-b-analysis.md).
-2. **Finance bridge next:** the H1 2026 reconciliation and action lists are in [`docs/brief-c-analysis.md`](docs/brief-c-analysis.md) and [`docs/project-statement.md`](docs/project-statement.md).
+## Members and parts
 
-### Reproducible command-line workflows
+| Member | Part of the work owned | Notebooks | Approach-log rows |
+|---|---|---|---|
+| Rishabh | Group 10 analysis coordination, data cleaning, and Brief C reconciliation | 01, 02 | 1–6 |
 
-| Brief | Script | Purpose |
-|---|---|---|
-| A · H1 volume | [`analyze_h1_volume.py`](analyze_h1_volume.py) | Active booked test lines, plan attainment, monthly/city/channel breakdown and reschedule sensitivity |
-| A · Jaipur | [`analyze_brief_a_jaipur.py`](analyze_brief_a_jaipur.py) | City/channel drill-down for the H1 growth gap |
-| A/B · migration | [`analyze_brief_a_b_migration.py`](analyze_brief_a_b_migration.py) | Volume, plan, and Chennai/Jaipur migration comparison |
-| C · money | [`clean_brief_c.py`](clean_brief_c.py) | Finance-only cleaning: invoices, gateway attempts, settlement rows |
-| C · reconciliation | [`analyze_brief_c_reconciliation.py`](analyze_brief_c_reconciliation.py) | Invoice-to-capture bridge, unmatched captures and settlement diagnostic |
+## How to run
 
-Brief-specific aggregate outputs are in [`outputs/`](outputs/README.md). Reusable notebook helpers remain in `src/kalpa/`; these small, reproducible brief workflows are kept as top-level entry points so the team can run them directly.
+1. Open this repository in a GitHub Codespace.
+2. Run `notebooks/01_h1_growth_and_brief_ab.ipynb` from a fresh kernel to profile, load and clean the booking data, then reproduce the scheduled-volume and Brief A/B supporting analysis.
+3. Place the approved finance data pack at `data/Build1_DataPack.zip` locally (it is not committed), then run `notebooks/02_brief_c_board_answer.ipynb` from a fresh kernel. The last section prints the bridge and board sentence.
+4. The H1 volume result is **457,539 / 435,880 active scheduled test lines = 4.97% growth** for H1 2026 versus H1 2025; the plan implies **18.32% growth**. A full-pack cold run has not been timed in a fresh Codespace.
 
-Full raw and row-level cleaned datasets remain local and are not committed. Run `python clean_brief_c.py` to read the bundled `data/Build1_DataPack.zip`, or pass `--source-dir` with an unpacked data-pack folder or another ZIP. Then run `python analyze_brief_c_reconciliation.py`. Cleaned rows and Finance action lists stay under the ignored `data/clean/brief_c/`; only aggregate profiles/outputs and code belong in GitHub.
+Generated row-level clean data and Finance action lists stay local under the Git-ignored `data/clean/`. Only aggregate outputs are committed.
 
-## What is in the kit
+## Links
 
-| Path | What it is | When you touch it |
-|---|---|---|
-| `README-template.md` | The README your repository opens with. Rename it to `README.md` once copied. | First hour, then whenever a link or a part changes. |
-| `docs/project-charter.md` | The one page a sponsor signs: deliverables, targets, roles, risks, decision rights, changes. | Phase 1, Scope, before the first notebook. |
-| `docs/project-statement.md` | Your translation of the brief, the requirements table, your prediction. | Phase 1, Scope. |
-| `docs/Project_Document_SAMPLE.docx` | A worked example of a filled charter and statement for brief C, with a fictional team. Copy the shape, never the words. | Read once in Scope. |
-| `docs/approach-log.md` | Two ways you could have done each part, the one you chose, why. | Every time a choice is made. |
-| `docs/decisions-log.md` | Every cleaning decision and its effect on the headline number. | Phase 2, and every re-run. |
-| `docs/challenges-log.md` | What broke, what you tried, what you changed. | As it happens. |
-| `docs/writeups.md` | The ten-question write-up, one section per member. | A question or two each evening. |
-| `docs/ai-log.md` | Every assistant use, one line each. | Every time. |
-| `docs/questions-to-ponder.md` | The questions that build depth, stage by stage and aspect by aspect. | Scope, then every checkpoint. |
-| `docs/interview-bank.md` | The interview questions this project earns you, tied to where you did the thing. | Before the mock; again before the panel. |
-| `docs/diagrams.md`, `docs/diagrams/` | Nine diagrams: system context, data context, HLD, LLD, entity model, booking lifecycle, pull-request sequence, the identity decision flow, the maturity ladder. Mermaid source and PNG. | Redraw the ones your brief changes. |
-| `guides/01` to `07` | Enterprise-grade approach, working style, the documents and why, depth thinking, presentation and interview, stretch ideas, research links. | Scope, then as needed. |
-| `notebooks/00` to `06` | Project template and six workflow notebooks: volume/data exploration (A/B supporting work), Brief C finance cleaning and bridge, methods and cold run. | Follow the run order; Brief C is the final board question. |
-| `src/kalpa/` | The shared package the notebooks import: loaders (process pool, chunked reads, vectorised normalisers), models (pydantic contracts), checks (pass or fail, never stops), logs (append to the markdown logs from code). | Extend; every function gets a test. |
-| `sql/` | Schema with constraints, the `\copy` loader, profile, CTE pipelines with window functions and anti-joins, index and EXPLAIN timing, a SQLite seeder for anyone without PostgreSQL. | Notebook 04, and the query you hand to finance. |
-| `tests/` | Ten tests across the package, three cases per helper. `pytest -q`. | When a helper is shared by two notebooks. |
-| `slides/Build1_Slide_Template.pptx` | Cover, the six chapters with speaker notes, a questions slide, two backup slides. | Answer and defend. |
-| `data/raw/` | A sample of the data pack so the notebooks run on day one. Replace with the full pack when released. | Day one. |
-| `data/clean/`, `slides/` | What the notebooks write. | As you build. |
+| What | Where |
+|---|---|
+| Video | Not provided |
+| Slides | [`slides/Group10_Brief_C.pptx`](slides/Group10_Brief_C.pptx) |
+| Task board | [GitHub Issues](https://github.com/RishabhInTech/c2-build1-brief-C-group-10/issues) |
+| Data pack provenance | [`data/raw/README.md`](data/raw/README.md) |
 
-## Running the kit on day one
+## The logs
 
-```
-pip install pandas numpy pydantic openpyxl matplotlib pytest     # all present in the Codespace image you have used so far
-pytest -q                                                       # 10 passed
-# Run the Brief C finance bridge from the bundled ZIP:
-python clean_brief_c.py
-python analyze_brief_c_reconciliation.py
-# Run notebooks/01 to 06 for the supporting exploration and final answer
-```
+[`docs/approach-log.md`](docs/approach-log.md) · [`docs/decisions-log.md`](docs/decisions-log.md) · [`docs/challenges-log.md`](docs/challenges-log.md) · [`docs/writeups.md`](docs/writeups.md) · [`docs/ai-log.md`](docs/ai-log.md)
 
-The full data pack is about 50 MB compressed and 1.3 million booking-test rows across 360 files in three shapes. Notebook 02 reads it with a process pool in about ninety seconds on two cores. The sample runs in a few seconds.
+## Working agreement
 
-## The repository, as the panel finds it
-
-```
-your-repo/
-  README.md
-  docs/
-    project-statement.md   approach-log.md   decisions-log.md
-    challenges-log.md      writeups.md       ai-log.md
-    questions-to-ponder.md
-  guides/                  (this kit's guides, kept for reference)
-  notebooks/
-    01_profile  02_load_parallel_validate  03_clean_reconcile  04_sql_transformations  05_methods  06_answer_cold_run
-  data/raw/   data/clean/
-  src/kalpa/  sql/   tests/   slides/
-```
-
-Numbers in notebook names are the run order. Outputs are cleared before every commit. The headline number on slide 3 must come out of a fresh Codespace running these in order, and `06_answer_cold_run` prints it in its last cell.
-
-## Three rules that cover most questions
-
-1. Every number carries its denominator and its period, in the notebook, in the log and on the slide.
-2. Every choice has at least one alternative written down before it is made.
-3. Every member can explain every number and every rejected alternative, alone.
+Work on the Group 10 branch and review changes before sharing them. Keep row-level clean finance data and action lists out of GitHub, clear notebook outputs before committing, and keep every reported number tied to its denominator and period.

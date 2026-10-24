@@ -3,7 +3,7 @@ import pathlib
 
 import pandas as pd
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "notebooks" / "_scripts"))
 from kalpa import loaders, checks  # noqa: E402
 
 

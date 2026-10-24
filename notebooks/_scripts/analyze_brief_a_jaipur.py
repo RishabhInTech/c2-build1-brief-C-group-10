@@ -10,33 +10,34 @@ plan metric.
 """
 
 import argparse
-import csv
 from collections import Counter
 from pathlib import Path
+
+from kalpa.analysis_inputs import booking_file, project_root, table_rows
 
 
 MONTHS = ("01", "02", "03", "04", "05", "06")
 YEARS = ("2025", "2026")
 
 
-def read_rows(data_dir, filename):
-    with (data_dir / filename).open(newline="", encoding="utf-8") as file:
-        yield from csv.DictReader(file)
+def read_rows(data_dir, raw_dir, filename):
+    yield from table_rows(data_dir, raw_dir, filename)
 
 
 def resolve_data_dir(raw_path):
     if raw_path:
         path = Path(raw_path).expanduser().resolve()
-        if not (path / "bookings.csv").exists():
-            raise FileNotFoundError(f"No bookings.csv in data directory: {path}")
+        booking_file(path)
         return path
-    root = Path(__file__).resolve().parent
+    root = project_root()
     for candidate in (root / "cleaned", root / "data" / "clean"):
-        if (candidate / "bookings.csv").exists():
+        try:
+            booking_file(candidate)
             return candidate
+        except FileNotFoundError:
+            continue
     raise FileNotFoundError(
-        "Cleaned tables not found. Pass --data-dir PATH containing bookings.csv "
-        "and plan_2026_h1.csv."
+        "Cleaned booking-test table not found. Pass --data-dir PATH."
     )
 
 
@@ -51,12 +52,14 @@ def fmt_pct(value):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", help="folder containing the cleaned CSV tables")
+    parser.add_argument("--raw-dir", help="raw data pack (defaults to data/raw in the project)")
     args = parser.parse_args()
     data_dir = resolve_data_dir(args.data_dir)
+    raw_dir = Path(args.raw_dir).expanduser().resolve() if args.raw_dir else project_root() / "data" / "raw"
     # Step 1: build the 2026 plan lookup: city + month -> target.
     plan = {
         (row["city"], row["month"][5:7]): int(row["target"])
-        for row in read_rows(data_dir, "plan_2026_h1.csv")
+        for row in read_rows(data_dir, raw_dir, "plan_2026_h1.csv")
     }
 
     # Step 2: count test lines from bookings, retaining useful dimensions.
@@ -70,7 +73,7 @@ def main():
     source_system = Counter()
     test = Counter()
 
-    for row in read_rows(data_dir, "bookings.csv"):
+    for row in read_rows(data_dir, raw_dir, "bookings.csv"):
         month = row["slot_at"][:7]
         year, month_num = month[:4], month[5:7]
         code = row["test_code"].strip()
@@ -155,7 +158,10 @@ def main():
         ((test[("2025", code)], test[("2026", code)], code) for code in codes),
         key=lambda values: values[1] - values[0],
     )
-    catalogue = {row["test_code"]: row["test_name"] for row in read_rows(data_dir, "tests_catalogue.csv")}
+    catalogue = {
+        row["test_code"]: row["test_name"]
+        for row in read_rows(data_dir, raw_dir, "tests_catalogue.csv")
+    }
     for y25, y26, code in code_rows[:8]:
         print(f"  {code} {catalogue.get(code, 'Unknown'):28} 2025={y25:>5,} 2026={y26:>5,} change={y26-y25:>+5,}")
 
@@ -170,11 +176,11 @@ def main():
     # Step 7: link test lines to results by booking + test code. This shows
     # whether a booked line has a matching result row; it is not plan volume.
     result_lines = Counter()
-    for row in read_rows(data_dir, "results.csv"):
+    for row in read_rows(data_dir, raw_dir, "results.csv"):
         result_lines[(row["booking_id"], row["test_code"])] += 1
 
     booked_lines = Counter()
-    for row in read_rows(data_dir, "bookings.csv"):
+    for row in read_rows(data_dir, raw_dir, "bookings.csv"):
         month = row["slot_at"][:7]
         if (
             row["city"] == "Jaipur"

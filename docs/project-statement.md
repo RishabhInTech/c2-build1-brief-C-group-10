@@ -62,7 +62,7 @@ The analysis uses H1 2026 invoices and payment attempts, with 30 June 23:59 IST 
 
 | # | Constraint |
 |---|---|
-| C1 | Use the starter-kit workflow: notebooks, SQL, Python and GitHub; standard-library cleaning is already available. |
+| C1 | Use the consolidated Python notebooks, helper scripts and GitHub workflow; standard-library finance cleaning is available. |
 | C2 | The team reports that the instructor permitted AI assistance on 2026-10-23. Disclose assistant use in `docs/ai-log.md`; the team owns validation and defense. |
 | C3 | Use the released data as supplied; do not invent missing payment rows or silently rewrite malformed identifiers. |
 | C4 | A `cash` method label appears in the supplied gateway export, but no independent bank statement or clinic cash-deposit register has yet been validated; Finance must confirm coverage before sign-off. |
