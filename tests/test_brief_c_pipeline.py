@@ -83,6 +83,11 @@ def test_zip_cleaning_and_h1_bridge(tmp_path):
     assert city.set_index("city")["positive_balance_pct_billed_at_cutoff"].to_dict() == {
         "Jaipur": "40.00", "Pune": "0.00"
     }
+    assert city.set_index("city")["positive_balance_at_close_rs"].to_dict() == {
+        "Jaipur": "40.00", "Pune": "50.00"
+    }
     assert month["positive_balance_at_cutoff_rs"].tolist() == ["40.00"]
+    assert month["positive_balance_at_close_rs"].tolist() == ["90.00"]
     assert ages["invoice_count"].astype(int).sum() == 1
     assert unmatched["attempts"].astype(int).sum() == 1
+    assert unmatched.set_index("method")["amount_rs"].to_dict() == {"card": "25.00"}

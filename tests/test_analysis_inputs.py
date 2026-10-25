@@ -51,11 +51,12 @@ def test_migration_helper_counts_active_lines_from_gzipped_input(tmp_path):
     with (data / "plan_2026_h1.csv").open("w", encoding="utf-8", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=["city", "month", "target"])
         writer.writeheader()
-        writer.writerows(
-            {"city": city, "month": f"2026-{month:02}", "target": 20}
-            for city in cities
-            for month in range(1, 7)
-        )
+        targets = []
+        for city in cities:
+            for month in range(1, 7):
+                target = 13 if not targets else 3
+                targets.append({"city": city, "month": f"2026-{month:02}", "target": target})
+        writer.writerows(targets)
     bookings = data / "bookings_all.csv.gz"
     with gzip.open(bookings, "wt", encoding="utf-8", newline="") as file:
         writer = csv.DictWriter(
@@ -121,5 +122,8 @@ def test_migration_helper_counts_active_lines_from_gzipped_input(tmp_path):
         summary = next(csv.DictReader(file))
     assert summary["y2025_h1_test_lines"] == "100"
     assert summary["y2026_h1_test_lines"] == "105"
-    assert summary["actual_yoy_growth_pct"] == "5.0"
+    assert summary["actual_yoy_growth_pct"] == "5"
+    assert summary["implied_plan_growth_pct"] == "18"
+    assert "raw_growth_including_rescheduled_pct" not in summary
+    assert "booking_created_date_growth_pct" not in summary
     assert summary["rescheduled_lines_excluded"] == "1"

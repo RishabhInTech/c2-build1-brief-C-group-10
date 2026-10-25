@@ -4,9 +4,9 @@
 
 ## H1 result
 
-The handbook's **5% actual growth** is reproduced by counting active booking-test lines by **scheduled test date (`slot_at`)**: H1 2025 had **435,880** lines and H1 2026 had **457,539**, a **4.97%** increase that rounds to 5%. The detailed six-city plan is **515,740** lines, or **18.32%** growth on that baseline. H1 volume reached **88.72% of plan**, a shortfall of **58,201 lines** (13.35 percentage points below plan growth).
+The handbook's **5% actual growth** is reproduced by counting active booking-test lines by **scheduled test date (`slot_at`)**: H1 2025 had **435,880** lines and H1 2026 had **457,539**. The six-city plan is **515,740** lines, or **18% estimated growth** on that baseline. H1 volume reached **88.72% of plan**, a shortfall of **58,201 lines** (13 percentage points below estimated growth).
 
-This measure aligns the H1 period to when each test is scheduled, which is the relevant month for the plan's test-volume target. It excludes **3,541** superseded lines on records marked `rescheduled`; keeping them would yield 461,080 lines and +5.78%. Booking creation date is a sensitivity, not the plan-aligned cohort: it yields **451,332** versus **436,094** (+3.49%). City, month, channel and migration cuts below all use scheduled dates and the same active-line rule.
+This measure aligns the H1 period to when each test is scheduled, which is the relevant month for the plan's test-volume target. It excludes **3,541** superseded lines on records marked `rescheduled`. City, month, channel and migration cuts below all use scheduled dates and the same active-line rule.
 
 ## Migration comparison
 

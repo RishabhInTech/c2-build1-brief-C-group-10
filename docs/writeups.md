@@ -2,9 +2,9 @@
 
 ## Group summary
 
-We began by checking the handbook's H1 volume figure, then profiled and cleaned the booking data and used Briefs A and B to understand where the change was coming from. Counting active booking-test lines by scheduled test date gave 435,880 lines in H1 2025 and 457,539 in H1 2026: growth of 4.97%, which rounds to the handbook's 5%. That is well below the plan's implied 18.32% growth. The city, month, channel, and migration cuts helped us describe the gap, but they do not prove what caused it.
+We began by checking the handbook's H1 volume figure, then profiled and cleaned the booking data and used Briefs A and B to understand where the change was coming from. Counting active booking-test lines by scheduled test date gave 435,880 lines in H1 2025 and 457,539 in H1 2026: **5% actual growth** against **18% estimated growth** in the plan. The city, month, channel, and migration cuts helped us describe the gap, but they do not prove what caused it.
 
-We selected Brief C as the main question because it gives the COO a practical Finance decision to take to the board. At 30 June, 11,586 invoices had ₹1.947 crore in positive balances; by 15 July, ₹1.648 crore remained open across 9,824 invoices. Separately, 1,541 H1 captured attempts worth ₹0.267 crore lacked a safe invoice match. We recommend that Finance review the open-balance and unmatched-capture lists before treating any amount as lost. The numbers are auditable, but the conclusion remains provisional until Finance confirms source completeness, due dates, reversals, and bank or cash evidence.
+We selected Brief C as the main question because it gives the COO a practical Finance decision to take to the board. At 30 June, 11,586 invoices had ₹1.947 crore in positive balances; June contributed ₹1.053 crore (54.1%) across 6,256 invoices. By 15 July, ₹1.648 crore remained open across 9,824 invoices. Separately, 1,541 H1 captured attempts worth ₹26.68 lakh lacked a safe invoice match, led by UPI at ₹13.76 lakh. We recommend that Finance review June first, then the unmatched-capture list, before treating any amount as lost. The numbers are auditable, but the conclusion remains provisional until Finance confirms source completeness, due dates, reversals, and bank or cash evidence.
 
 ---
 
@@ -20,11 +20,11 @@ I coordinated the analysis, worked through the booking data and H1 growth defini
 
 **3. Which approaches did you consider for your part, which did you choose, and why not the others?**
 
-For growth, I compared booking-created date, scheduled test date, and result date. Scheduled date (`slot_at`) best matched the monthly plan and reproduced 4.97%, rounding to 5%. Booking-created date gives a 3.49% sensitivity; result date describes a later event. For invoice matching, I considered exact IDs, fuzzy amount/date matching, and a limited canonical rule. I chose exact matching first, then hyphen removal only when the invoice key was unique. Fuzzy matching could create wrong links, so uncertain cases stay visible for Finance.
+For growth, I used scheduled test date (`slot_at`) because it best matches the monthly plan. It gives 5% actual growth; the plan estimates 18%. Result date describes a later event. For invoice matching, I considered exact IDs, fuzzy amount/date matching, and a limited canonical rule. I chose exact matching first, then hyphen removal only when the invoice key was unique. Fuzzy matching could create wrong links, so uncertain cases stay visible for Finance.
 
 **4. Which number do you trust most, what is its denominator, and what would make you stop trusting it?**
 
-I trust the 4.97% growth figure because I can reproduce it: 457,539 active scheduled test lines versus 435,880 in H1 2025. The 2026 count excludes 3,541 superseded reschedule lines. I would revisit it if the plan owner defined another date or grain, or if source files were missing. The invoice balance is auditable too, but has more timing and source caveats.
+I trust the 5% growth figure because I can reproduce it: 457,539 active scheduled test lines versus 435,880 in H1 2025. The 2026 count excludes 3,541 superseded reschedule lines. I would revisit it if the plan owner defined another date or grain, or if source files were missing. The invoice balance is auditable too, but has more timing and source caveats.
 
 **5. What broke, what did you try, and what did you change? Point at the challenges-log entry.**
 

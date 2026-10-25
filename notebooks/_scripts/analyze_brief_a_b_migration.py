@@ -42,6 +42,11 @@ def pct(old, new):
     return 100 * (new / old - 1) if old else float("nan")
 
 
+def whole_pct(old, new):
+    """Report the headline growth as a whole percent."""
+    return round(pct(old, new))
+
+
 def resolve_data_dir(raw_path):
     if raw_path:
         path = Path(raw_path).expanduser().resolve()
@@ -78,7 +83,6 @@ def main():
         for r in rows(data_dir, raw_dir, "plan_2026_h1.csv")
     }
     volume = Counter()
-    created_volume = Counter()
     raw_volume = Counter()
     rescheduled_volume = Counter()
     channel_volume = Counter()
@@ -91,11 +95,6 @@ def main():
         code = (r["test_code"] or "").strip()
         status = r.get("booking_status", "").strip().lower()
         city = r["city"]
-        created = r.get("created_at", "")
-        created_year, created_month = created[:4], created[5:7]
-        if (code and status != "rescheduled" and created_year in ("2025", "2026")
-                and created_month in MONTHS):
-            created_volume[(created_year, city, created_month)] += 1
         scheduled = r["slot_at"]
         year, month = scheduled[:4], scheduled[5:7]
         if year not in ("2025", "2026") or month not in MONTHS or not code:
@@ -124,33 +123,26 @@ def main():
     raw_2026 = sum(raw_volume[("2026", city, month)] for city in cities for month in MONTHS)
     rescheduled_2026 = sum(rescheduled_volume[("2026", city, month)] for city in cities for month in MONTHS)
     total_plan = sum(plan[(city, month)] for city in cities for month in MONTHS)
-    created_2025 = sum(created_volume[("2025", city, month)] for city in cities for month in MONTHS)
-    created_2026 = sum(created_volume[("2026", city, month)] for city in cities for month in MONTHS)
     overall_output = [{
         "y2025_h1_test_lines": total_2025,
         "y2026_h1_test_lines": total_2026,
-        "actual_yoy_growth_pct": round(pct(total_2025, total_2026), 2),
+        "actual_yoy_growth_pct": whole_pct(total_2025, total_2026),
         "raw_2026_lines_including_rescheduled": raw_2026,
         "rescheduled_lines_excluded": rescheduled_2026,
-        "raw_growth_including_rescheduled_pct": round(pct(total_2025, raw_2026), 2),
         "y2026_h1_plan": total_plan,
-        "implied_plan_growth_pct": round(pct(total_2025, total_plan), 2),
+        "implied_plan_growth_pct": whole_pct(total_2025, total_plan),
         "plan_attainment_pct": round(total_2026 / total_plan * 100, 2),
         "variance_vs_plan": total_2026 - total_plan,
-        "booking_created_date_y2025_h1_test_lines": created_2025,
-        "booking_created_date_y2026_h1_test_lines": created_2026,
-        "booking_created_date_growth_pct": round(pct(created_2025, created_2026), 2),
     }]
     write_csv(output_dir / "brief_a_h1_overall.csv", overall_output,
               ["y2025_h1_test_lines", "y2026_h1_test_lines", "actual_yoy_growth_pct",
                "raw_2026_lines_including_rescheduled", "rescheduled_lines_excluded",
-               "raw_growth_including_rescheduled_pct", "y2026_h1_plan",
-               "implied_plan_growth_pct", "plan_attainment_pct", "variance_vs_plan",
-               "booking_created_date_y2025_h1_test_lines",
-               "booking_created_date_y2026_h1_test_lines", "booking_created_date_growth_pct"])
+               "y2026_h1_plan", "implied_plan_growth_pct",
+               "plan_attainment_pct", "variance_vs_plan"])
     print("H1 all-city headline")
-    print(f"  2025={total_2025:,} 2026={total_2026:,} growth={pct(total_2025,total_2026):+.1f}% plan={total_plan:,} implied plan growth={pct(total_2025,total_plan):+.1f}% attainment={total_2026/total_plan*100:.1f}%")
-    print(f"  Raw 2026={raw_2026:,}; excluded {rescheduled_2026:,} superseded reschedule lines (raw growth {pct(total_2025,raw_2026):+.1f}%)")
+    print(f"  2025={total_2025:,} 2026={total_2026:,} actual growth={whole_pct(total_2025, total_2026)}%")
+    print(f"  Plan={total_plan:,} estimated growth={whole_pct(total_2025, total_plan)}%")
+    print(f"  Excluded {rescheduled_2026:,} superseded reschedule lines")
 
     monthly_output = []
     for month in MONTHS:
