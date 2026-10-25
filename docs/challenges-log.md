@@ -1,12 +1,14 @@
-# Challenges log · Brief <LETTER> · Group <N>
+# Challenges log · Brief C · Group 10
 
 What broke or surprised us, what we tried, what we changed and why. Entries are dated and written as they happen. A log written on the last evening answers no interview question, and the commit history shows which kind this is.
 
 | # | Phase | What broke or surprised us | What we tried first | What we changed, and why | What we would do differently next time | Who | Date |
 |---|---|---|---|---|---|---|---|
-| 0 | *Profile and clean* | *Our first join of invoices to payments returned almost no matches.* | *Printed ten ids from each file side by side.* | *Wrote a mapping rule from invoice id to payment reference; kept unmappable rows in a separate list.* | *Profile id formats before writing any join.* | *example* | *example* |
-| 1 | | | | | | | |
+| 1 | Analysis / Brief A and B | An initial join diagnostic used one booking ID as the denominator for both collection events and result rows, although results are at booking-test grain. | Compared reported counts with the table grains and checked the join keys. | Split the diagnostic: collection coverage per distinct booking; result match per booking-test line. | Write down the grain and denominator before computing any rate; validate both against the join diagnostics. | Rishabh | 2026-10-23 |
+| 2 | Profile and clean / Brief C | The first payment ID pattern check treated gateway IDs with hexadecimal letters as invalid, and 95,921 invoice references did not match the dominant hyphenated pattern. | Compared failed IDs with the source shape and the cleaned profile; separated payment-ID format from invoice-reference format. | Changed payment ID validation to allow hexadecimal suffixes; retained raw references and logged format exceptions instead of stripping characters or dropping rows. | Infer identifier rules from the source family, preserve raw values, and test match collisions before choosing a mapping. | Rishabh | 2026-10-24 |
+| 3 | Analysis / Brief A | Booking-created-date growth was +3.49%, which did not align with the handbook's 5% H1 figure or the monthly plan's test-volume grain. | Recomputed the same six-city cohort by scheduled date (`slot_at`) and checked the active reschedule rule, city/month totals, plan attainment and result-date coverage. | Scheduled-date active lines reproduce +4.97% (rounds to 5%); booking-created growth (+3.49%) and result-date matching (~81%) remain separate diagnostics. | Choose the event date from the business question and plan before aggregating; distinguish scheduled volume from results. | Rishabh | 2026-10-24 |
+| 4 | Brief C workflow | The full finance cleaning run was terminated during the payment export. | Checked the source archive layout and reproduced the bridge on a small synthetic ZIP fixture. | The workflow accepts ZIP input, streams cleaned tables to disk, and keeps row-level outputs ignored; the fixture checks late captures, unmatched captures, and balance identities. | Keep large row-level data streaming and complete a full-pack cold run before sign-off. | The end-to-end fixture passes; the full-pack run still needs a successful local cold run. | Rishabh | 2026-10-24 |
 
-## The entry we are proudest of
+## The challenge that taught us most
 
-<One paragraph on the problem that taught the group the most. This is the story each of you tells in the viva.>
+The H1 headline changed when we matched the measurement date to the plan: booking-created date gave +3.49%, while active scheduled test lines gave +4.97%, rounding to the handbook's 5%. We checked the reschedule rule, city and month totals, and result-date coverage before using the scheduled-date figure. The checks explain which measure answers the volume-plan question; they do not establish why the plan was missed.

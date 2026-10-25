@@ -1,0 +1,36 @@
+# Brief A/B summary outputs
+
+The primary H1 counts and city/month/channel tables use scheduled test dates (`slot_at`) and were generated from the full local cleaned tables by helpers in `notebooks/_scripts/`; migration and result-date diagnostics use the same active-line rule. Booking-created-date growth is retained as a sensitivity. The underlying patient-level and booking-level data are not included here.
+
+| File | Grain | Contents |
+|---|---|---|
+| `brief_a_h1_overall.csv` | Six-city H1 total | Active growth, implied plan growth, attainment, variance and raw reschedule sensitivity |
+| `brief_a_h1_monthly.csv` | Six-city month | Active H1 2026 versus H1 2025 and monthly plan; raw reschedule lines shown separately |
+| `brief_a_h1_channel_by_city.csv` | City and channel | Clinic/home changes by city, H1 year over year |
+| `brief_a_b_city_summary.csv` | City | H1 test lines, year-over-year change, plan attainment and variance |
+| `brief_a_b_group_plan.csv` | Treated/control group | H1 actual versus plan |
+| `brief_a_b_period_summary.csv` | Group and Jan–Mar/Apr–Jun period | Matched-year growth, post gap and descriptive difference-in-differences |
+| `brief_a_b_monthly_treated.csv` | Migration city-month | Matched-year counts, plan gap, channel counts and source-system mix |
+| `brief_a_b_channel_summary.csv` | Dimension and category | H1 clinic/home and app/phone/walk-in counts |
+| `brief_a_b_join_diagnostics.csv` | Year, group and source system | Booking-level collection joins and test-line-level result joins |
+| `brief_a_h1_result_date_summary.csv` | Result year | H1 result event rows, distinct booking-test pairs, and matches to active scheduled test lines |
+
+Regenerate with the command in [`docs/brief-a-b-analysis.md`](../docs/brief-a-b-analysis.md). The input directory must contain the cleaned CSV tables. These aggregate files contain no patient names or patient IDs.
+
+## Brief C: money bridge
+
+The team selected Brief C as the final board-facing brief. `notebooks/_scripts/clean_brief_c.py` creates a finance-only clean pack locally; it keeps patient names and patient IDs out of the output, preserves source and normalized payment references, and profiles the source tables before any join. The full row-level finance files and detailed exception list remain under local `data/clean/brief_c/` and are not committed.
+
+| File | Grain | Contents |
+|---|---|---|
+| `brief_c/finance_profile.json` | Finance dataset / aggregate | Input file coverage, row counts, amount totals, date bounds, payment status/method counts and duplicate primary-key checks |
+| `brief_c/quality_issue_summary.csv` | Dataset and issue type | Aggregate counts of format exceptions; no payment or invoice identifiers |
+| `brief_c/finance_bridge_summary.csv` | H1 bridge item | Reconciled row counts, amounts in crore and exact rupees |
+| `brief_c/finance_bridge_summary.json` | H1 bridge and source checks | Period, cutoff, mapping coverage, balance, unmatched capture and settlement diagnostic |
+| `brief_c/finance_all_period_summary.csv` | All supplied finance periods | Invoice total, gross captured total, safely matched captures and unmatched captures |
+| `brief_c/finance_outstanding_by_invoice_month.csv` | H1 invoice month | Billed amount, open balances at close and observation cutoff, and later captured amount |
+| `brief_c/finance_outstanding_by_city_channel.csv` | H1 invoice city and channel | Billed value, open balance counts/amounts at both cutoffs, and open balance as a share of billing |
+| `brief_c/finance_open_balance_age.csv` | Invoice-age band at 15 July | Open invoice count and value by elapsed invoice age; not contractual delinquency |
+| `brief_c/finance_unmatched_capture_breakdown.csv` | H1 unmatched capture method and reference shape | Attempt counts and exact captured amount, without payment IDs |
+
+See [`docs/brief-c-analysis.md`](../docs/brief-c-analysis.md) for the board sentence, bridge definitions, settlement limitation and rebuild command. Transaction-level Finance action lists stay local under the ignored `data/clean/brief_c/actions/` folder.

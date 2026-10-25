@@ -1,0 +1,7 @@
+group,period,y2025_test_lines,y2026_test_lines,metric,value
+treated,pre,64158,62162,yoy_growth_pct,-3.11
+treated,post,61132,58770,yoy_growth_pct,-3.86
+control,pre,156585,171788,yoy_growth_pct,9.71
+control,post,154005,164819,yoy_growth_pct,7.02
+treated_minus_control,post_growth_gap,,,percentage_points,-10.89
+treated_minus_control,pre_adjusted_growth_gap,,,percentage_points,1.93

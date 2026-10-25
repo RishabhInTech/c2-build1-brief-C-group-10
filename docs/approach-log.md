@@ -1,23 +1,12 @@
-# Approach log · Brief <LETTER> · Group <N>
+# Approach log · Brief C · Group 10
 
-One row per part of the work. At least two approaches in every row. Written when the choice is made, not afterwards; the commit timestamp is the proof. An approach you tried for twenty minutes and abandoned is the best kind of row. Keep the dead notebook cell and link to it.
+This concise log records the main alternatives considered, the chosen method, and what the evidence showed. Each row names at least two approaches; detailed row-level cleaning rules remain in [`decisions-log.md`](decisions-log.md).
 
-The panel reads this file before it reads your notebooks. A panellist will cover the "chosen" column and ask you to choose again, aloud.
-
-| # | Part of the work | Approaches considered (two at least) | Chosen | Why this, and not the others | What would have changed the choice | What happened when we tried it | Owner | Date |
+| # | Part of the work | Approaches considered (at least two) | Chosen | Why this approach | What would change the choice | What happened / evidence | Owner | Date |
 |---|---|---|---|---|---|---|---|---|
-| 0 | *Example: matching invoice ids to payment references* | *(a) Strip the prefix and match on digits. (b) Match on amount and date within two days. (c) Both, and keep the rows where they disagree.* | *(c)* | *(a) alone matched 91 percent and silently paired two invoices with one payment. (b) alone could not separate same-day same-amount visits. Together they flag what each misses.* | *A shared id in both feeds would have made (a) enough.* | *96 percent matched. The 4 percent became finance's list.* | *example* | *example* |
-| 1 | Which table to count tests from | | | | | | | |
-| 2 | How to define the period (first half, both years) | | | | | | | |
-| 3 | Profiling: what to check in each table | | | | | | | |
-| 4 | Duplicates: the identity rule | | | | | | | |
-| 5 | Missing values: drop, default, or keep and flag | | | | | | | |
-| 6 | Each join: type, key, validation | | | | | | | |
-| 7 | The method (tree / ladder / bridge / shuffle / comparison) | | | | | | | |
-| 8 | The segmentation (city, channel, type) | | | | | | | |
-| 9 | The chart that carries the claim | | | | | | | |
-| 10 | The one sentence | | | | | | | |
-
-## Parts we never had to choose about
-
-<List any part where only one approach was possible, and say why. The panel will ask whether that was true.>
+| 1 | H1 volume date and grain | Count by booking-created date; count by scheduled test date; count result events by result date | Count nonblank active booking-test lines by scheduled date (`slot_at`) | The monthly plan targets test volume, so scheduled month is the plan-aligned period; results are a later operational event | A plan-owner definition based on bookings created or completed tests would require a new matching cohort | 435,880 lines in H1 2025 and 457,539 in H1 2026: **4.97% growth**, rounding to the handbook's 5%; booking-created-date growth is +3.49% | Rishabh | 2026-10-24 |
+| 2 | Booking identity and incomplete rows | Count every source row; deduplicate on booking ID; retain valid test lines while excluding superseded reschedules and flagging exceptions | Count nonblank test lines; exclude records marked `rescheduled`; do not deduplicate by booking ID alone | One booking can contain several tests, while a rescheduled Nova row is superseded; silent drops/defaults could change the denominator | A confirmed target definition based on raw attempts rather than active scheduled lines would change the rule | Excluding 3,541 superseded H1 2026 lines changes raw growth from +5.78% to +4.97%; malformed or missing values remain reviewable | Rishabh | 2026-10-24 |
+| 3 | Brief A/B migration comparison | Compare H1 totals only; compare treated cities with each other; compare Chennai/Jaipur with four legacy cities and show matched pre/post periods | Report city and group outcomes, then show Jan–Mar and Apr–Jun year-over-year comparisons | The four legacy cities add context while preserving city differences and the pre-period gap | More pre-periods, more treated cities, or evidence of different concurrent shocks would change the comparison design | The pre-adjusted relative change is +1.93 percentage points, but treated cities had different pre-trends; this is descriptive, not causal | Rishabh | 2026-10-24 |
+| 4 | Cleaning and reference handling | Drop nonstandard rows; normalize every reference aggressively; preserve raw values and apply only reversible normalization while flagging exceptions | Keep source rows, retain raw references, and flag questionable values; standardize only safe fields | Dropping changes denominators; aggressive normalization can create false matches; provenance allows Finance to investigate | A source-owner correction or Finance-approved mapping table could safely resolve additional rows | Non-dominant invoice-reference shapes are retained for review; no amount/date fuzzy matching is used | Rishabh | 2026-10-24 |
+| 5 | Invoice-to-payment matching | Exact invoice ID only; fuzzy match by amount/date; exact match followed by hyphen removal only when the invoice key is unique | Exact ID, then unique canonical ID with hyphens removed; leave unresolved attempts unmatched | A unique, deterministic rule recovers separator variants without guessing identity or creating collisions | A shared, Finance-validated transaction key could replace the reference rule | 468,742 of 473,507 gateway rows map to an invoice; 4,765 stay unmatched and remain visible as exceptions | Rishabh | 2026-10-24 |
+| 6 | Board bridge and timing | Report only the 30 June balance; net balances and overcaptures across invoices; or report invoice-level positive balances separately and observe later captures | Show the 30 June positive balance, the 15 July remaining balance, late captures, and unmatched captures separately | The COO can distinguish timing from unresolved exceptions without treating unrelated overcaptures as credits or losses | Finance confirmation of source coverage, reversals, due dates, and bank/cash settlement could change the final wording | At close, 11,586 invoices carried ₹1.947 crore positive balances; by 15 July, ₹1.648 crore remained open across 9,824 invoices. Both exception lists need Finance review | Rishabh | 2026-10-24 |

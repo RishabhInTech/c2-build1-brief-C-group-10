@@ -3,5 +3,10 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
+data/Build1_DataPack.zip
 data/clean/*.csv
+data/clean/*.csv.gz
+data/clean/*.sqlite
+data/clean/brief_c/
 !data/clean/README.md
+outputs/brief_a_h1_city_growth.png

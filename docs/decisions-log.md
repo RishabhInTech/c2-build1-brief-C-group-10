@@ -1,4 +1,4 @@
-# Decisions log · cleaning and reconciliation · Brief <LETTER> · Group <N>
+# Decisions log · cleaning and reconciliation · Brief C · Group 10
 
 Every act of cleaning is a decision with a reason and an effect. Input equals clean plus rejected, every time. The headline number is recomputed after every decision so the bridge from raw to final is visible.
 
@@ -21,8 +21,53 @@ Every act of cleaning is a decision with a reason and an effect. Input equals cl
 |---|---|---|---|---|---|---|---|---|
 | 1 | | | | | | | | |
 
+## Brief A/B analysis decisions (2026-10-23)
+
+These are analysis choices, separate from the raw-to-clean reconciliation above. Source row accounting remains in `cleaned/input_clean_rejected.csv` in the full local data pack.
+
+| # | Analysis choice | Decision | Rationale | Effect / caveat |
+|---|---|---|---|---|
+| A0 | H1 volume baseline | Compare active nonblank booking-test lines scheduled January through June 2026 with the same months in 2025; sum all six cities' plan targets | Same-season periods and the plan's monthly test-volume target align at scheduled-test month | 457,539 vs 435,880 is +4.97% (rounds to the handbook's 5%); 515,740 planned is +18.32%; 58,201 lines below plan. Booking-created-date growth is +3.49% as a sensitivity |
+| A1 | Test-volume grain | Count nonblank booking-test lines by `slot_at` month and exclude `booking_status = rescheduled` | A rescheduled Nova booking has a replacement record; keeping the old line would count the superseded line as active volume | The primary measure is active scheduled volume, not lab-completed volume; H1 result-date matching is a separate ~81% coverage diagnostic, not completion proof |
+| A2 | Comparison period | Compare Jan–Jun 2026 with Jan–Jun 2025, split into Jan–Mar and Apr–Jun | Compares the same seasonal months while examining migration timing | Only three post months are available |
+| A3 | Migration/control groups | Treated = Chennai and Jaipur; controls = Ahmedabad, Bengaluru, Hyderabad and Pune | Source-system field shows Nova activity in March, nearly all scheduled test lines in April and all in May–June; other cities remain legacy | Migration is not randomized and cities may have concurrent shocks |
+| A4 | Cross-table denominators | Collection joins are booking-level; result joins are booking-test-level | Collections have no test code; results do | These are join indicators, not completion rates without further reconciliation |
+| A5 | Causal interpretation | Show the scheduled-date post-period growth gap and pre-period-adjusted descriptive estimate | The treated group already had a different pre-period trend | +1.93 percentage points is descriptive, not a causal effect |
+| A6 | H1 volume cohort date | Use scheduled test date (`slot_at`) as the primary H1 cohort; retain booking creation date as a sensitivity | The plan is monthly test-volume targets, so scheduled month aligns the actual volume with the plan period; result timestamps describe a later operational event | Active scheduled lines are 435,880 in H1 2025 and 457,539 in H1 2026 (+4.97%, rounding to the handbook's 5%); creation-date growth is +3.49%. Result matching remains a separate diagnostic, not completed-volume proof |
+| A7 | Migration comparison cohort | Recompute migration city, pre/post, collection and result diagnostics on scheduled-date cohorts | Use the same scheduled-date volume definition for the H1 plan check and migration comparison | Scheduled-date pre-adjusted relative change is +1.93 points (descriptive only); treated/control plan attainment is 82.67%/91.11%. Join rates remain diagnostics, not completion rates |
+
 ## Cold runs
 
 | Date | Who ran it | Fresh Codespace? | Runtime | Headline number | Same as last run? | If not, why |
 |---|---|---|---|---|---|---|
 | | | | | | | |
+
+## Brief C cleaning decisions (2026-10-24)
+
+The detailed machine-readable log is generated in the local finance-only pack. It includes source file/row provenance. This repository commits the decisions and aggregate exception counts, not the row-level invoice/payment CSVs.
+
+| # | Cleaning choice | Decision | Rationale | Effect / caveat |
+|---|---|---|---|---|
+| C1 | Finance scope | Clean invoices, gateway attempts and settlements only | These are the Brief C money-bridge source tables | Existing `cleaned/` pack is unchanged; 470,776 invoices, 473,507 attempts and 562 settlements retained |
+| C2 | Period | Retain every supplied finance period, but report the H1 2026 invoice and payment bridge | The requested comparison is H1 2026; adjacent payments/settlements support timing checks | H1 invoice dates are Jan–Jun 2026; gateway observation extends through 15 July |
+| C3 | Currency | Keep rupee amounts as exact decimals; display in crore and retain exact rupees in audit outputs | Avoid float rounding while matching the problem's crore unit | No invalid or blank amount values found in these inputs |
+| C4 | Reference normalization | Trim and uppercase gateway invoice refs; preserve raw and normalized values | Safe normalization is reversible; stripping separators or fuzzy matching could collide | 95,921 non-dominant format references are retained and summarized; no guessed matches are made |
+| C5 | Payment attempts and duplicates | Retain captured and failed attempts and all repeated keys; flag duplicates instead of deleting | Multiple attempts per invoice can be legitimate, and status determines whether money was captured | No duplicate invoice IDs, payment IDs, or settlement IDs were found; invoice references repeat by design |
+| C6 | Timing | Preserve epoch and add UTC and Asia/Kolkata timestamps | Quarter boundary should be assigned consistently in local time, with source time auditable | Payments are present through July 2026 and settlements through Q3 2026 |
+| C7 | Personal data and traceability | Omit patient name/ID; retain booking ID and source file/row | Booking helps validate one invoice per visit; provenance supports finance review | Row-level outputs stay local and ignored by Git; aggregate profile is committed |
+| C8 | Identifier format checks | Validate payment IDs as hexadecimal suffixes, not digits only | The actual gateway ID family contains `a`–`f`; the first overly strict check falsely flagged these valid IDs | Corrected the format rule; remaining quality exceptions are invoice-reference variants |
+
+## Brief C reconciliation decisions (2026-10-24)
+
+| # | Analysis choice | Decision | Rationale | Effect / caveat |
+|---|---|---|---|---|
+| C9 | H1 period and cutoff | Use H1 2026; define close as 30 June 23:59 IST and observe captures through 15 July IST | Aligns the invoice and payment bridge to the stated first-half period and captures near-cutoff receipts | 162,876 H1 invoices total ₹26.828 crore; source coverage still needs Finance confirmation |
+| C10 | Reference match | Exact invoice ID, then hyphen removal only when the canonical key uniquely identifies one invoice | Separator-free references are a repeated source format; amount/date similarity can mispair visits | 468,742 of 473,507 gateway attempts mapped; 4,765 remained unmatched with no fuzzy repair |
+| C11 | Collection amount | Sum captured attempts matched to H1 invoices by cutoff; exclude failed attempts | Failed rows are not receipts; attempt grain must remain visible | 151,993 matched captured rows total ₹24.998 crore across 151,305 H1 invoices at close |
+| C12 | Outstanding balance | Report positive invoice balances and overcaptures separately | Netting unrelated invoices could conceal balances or improperly apply credits | ₹1.947 crore positive balances across 11,586 invoices; ₹0.117 crore overcapture across 704 invoices, shown separately |
+| C13 | Settlement comparison | Compare H1 settlement gross with linked captures as a diagnostic only | Payment and settlement dates differ, and independent bank/cash evidence is absent | Linked captures exceed H1 settlement gross by ₹0.608 crore; Finance must resolve before bank-cash claims |
+| C14 | Finance pack execution and privacy | Read the bundled ZIP directly and stream cleaned rows to CSV; keep detailed transaction rows out of Git | Manual extraction adds setup steps, while buffering the full gateway export increases memory use and risks exposing row-level data | A synthetic ZIP-to-bridge integration test passes; the full-pack run remains to be confirmed in the local Codespace |
+
+## Brief A headline (2026-10-24)
+
+Use scheduled date (`slot_at`) for the test-volume comparison because the plan is specified by month and city. Active H1 volume is 435,880 in 2025 and 457,539 in 2026, or +4.97% (rounds to the handbook's 5%); 3,541 superseded Nova reschedule lines are excluded. The plan is 515,740 (+18.32% over the same baseline), giving 88.72% attainment and a 58,201-line shortfall. Booking-created-date growth (+3.49%) and result-date matching (~81% of scheduled lines) remain separately labeled sensitivities/diagnostics, not alternative headline counts.
