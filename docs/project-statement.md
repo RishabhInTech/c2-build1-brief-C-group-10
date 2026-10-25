@@ -2,7 +2,7 @@
 
 **Status:** Brief C is the final board-facing focus, selected on 2026-10-24. Earlier A/B work remains supporting project context.
 
-The analysis begins with the H1 test-volume check. Counting active booking-test lines by scheduled date (`slot_at`) gives +4.97%, which rounds to the handbook's 5%, against +18.32% implied plan growth. The project then answers the COO's finance question with Brief C. See [`project-analysis.md`](project-analysis.md) for the calculation, booking-created-date sensitivity and limits. The prediction below was recorded before invoice/payment matching and bridge analysis, not before any data was opened.
+The analysis begins with the H1 test-volume check. Counting active booking-test lines by scheduled date (`slot_at`) gives **5% actual growth**, against **18% estimated growth** in the plan. The project then answers the COO's finance question with Brief C. See [`project-analysis.md`](project-analysis.md) for the calculation and limits. The prediction below was recorded before invoice/payment matching and bridge analysis, not before any data was opened.
 
 ## 1. Dr Menon's words
 

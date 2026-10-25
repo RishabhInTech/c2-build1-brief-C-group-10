@@ -27,13 +27,13 @@ These are analysis choices, separate from the raw-to-clean reconciliation above.
 
 | # | Analysis choice | Decision | Rationale | Effect / caveat |
 |---|---|---|---|---|
-| A0 | H1 volume baseline | Compare active nonblank booking-test lines scheduled January through June 2026 with the same months in 2025; sum all six cities' plan targets | Same-season periods and the plan's monthly test-volume target align at scheduled-test month | 457,539 vs 435,880 is +4.97% (rounds to the handbook's 5%); 515,740 planned is +18.32%; 58,201 lines below plan. Booking-created-date growth is +3.49% as a sensitivity |
+| A0 | H1 volume baseline | Compare active nonblank booking-test lines scheduled January through June 2026 with the same months in 2025; sum all six cities' plan targets | Same-season periods and the plan's monthly test-volume target align at scheduled-test month | 457,539 vs 435,880 gives 5% actual growth; 515,740 planned gives 18% estimated growth; 58,201 lines below plan |
 | A1 | Test-volume grain | Count nonblank booking-test lines by `slot_at` month and exclude `booking_status = rescheduled` | A rescheduled Nova booking has a replacement record; keeping the old line would count the superseded line as active volume | The primary measure is active scheduled volume, not lab-completed volume; H1 result-date matching is a separate ~81% coverage diagnostic, not completion proof |
 | A2 | Comparison period | Compare Jan–Jun 2026 with Jan–Jun 2025, split into Jan–Mar and Apr–Jun | Compares the same seasonal months while examining migration timing | Only three post months are available |
 | A3 | Migration/control groups | Treated = Chennai and Jaipur; controls = Ahmedabad, Bengaluru, Hyderabad and Pune | Source-system field shows Nova activity in March, nearly all scheduled test lines in April and all in May–June; other cities remain legacy | Migration is not randomized and cities may have concurrent shocks |
 | A4 | Cross-table denominators | Collection joins are booking-level; result joins are booking-test-level | Collections have no test code; results do | These are join indicators, not completion rates without further reconciliation |
 | A5 | Causal interpretation | Show the scheduled-date post-period growth gap and pre-period-adjusted descriptive estimate | The treated group already had a different pre-period trend | +1.93 percentage points is descriptive, not a causal effect |
-| A6 | H1 volume cohort date | Use scheduled test date (`slot_at`) as the primary H1 cohort; retain booking creation date as a sensitivity | The plan is monthly test-volume targets, so scheduled month aligns the actual volume with the plan period; result timestamps describe a later operational event | Active scheduled lines are 435,880 in H1 2025 and 457,539 in H1 2026 (+4.97%, rounding to the handbook's 5%); creation-date growth is +3.49%. Result matching remains a separate diagnostic, not completed-volume proof |
+| A6 | H1 volume cohort date | Use scheduled test date (`slot_at`) as the primary H1 cohort | The plan is monthly test-volume targets, so scheduled month aligns actual volume with the plan period; result timestamps describe a later operational event | Active scheduled lines are 435,880 in H1 2025 and 457,539 in H1 2026 (5% actual growth); plan-estimated growth is 18%. Result matching remains a separate diagnostic, not completed-volume proof |
 | A7 | Migration comparison cohort | Recompute migration city, pre/post, collection and result diagnostics on scheduled-date cohorts | Use the same scheduled-date volume definition for the H1 plan check and migration comparison | Scheduled-date pre-adjusted relative change is +1.93 points (descriptive only); treated/control plan attainment is 82.67%/91.11%. Join rates remain diagnostics, not completion rates |
 
 ## Cold runs
@@ -70,4 +70,12 @@ The detailed machine-readable log is generated in the local finance-only pack. I
 
 ## Brief A headline (2026-10-24)
 
-Use scheduled date (`slot_at`) for the test-volume comparison because the plan is specified by month and city. Active H1 volume is 435,880 in 2025 and 457,539 in 2026, or +4.97% (rounds to the handbook's 5%); 3,541 superseded Nova reschedule lines are excluded. The plan is 515,740 (+18.32% over the same baseline), giving 88.72% attainment and a 58,201-line shortfall. Booking-created-date growth (+3.49%) and result-date matching (~81% of scheduled lines) remain separately labeled sensitivities/diagnostics, not alternative headline counts.
+Use scheduled date (`slot_at`) for the test-volume comparison because the plan is specified by month and city. Active H1 volume is 435,880 in 2025 and 457,539 in 2026, giving 5% actual growth; exclude 3,541 superseded Nova reschedule lines. The plan is 515,740, giving 18% estimated growth, 88.72% attainment and a 58,201-line shortfall. Result-date matching (~81% of scheduled lines) remains a separate coverage diagnostic, not a completion rate.
+
+## Brief C presentation decisions (2026-10-25)
+
+| # | Reporting choice | Decision | Reason |
+|---|---|---|---|
+| C15 | Close versus observation cutoff | Label month and city/channel balances as 30 June; label the remaining open balance as 15 July | These are different snapshots and should not appear interchangeable |
+| C16 | Finance priorities | Start with June's 6,256 invoices and ₹1.053 crore close balance, then unmatched captures led by UPI | These are the largest review queues; the data do not prove their cause |
+| C17 | City amounts | Sum the clinic and home close-balance rows from the aggregate CSV | Current output totals Bengaluru ₹46.32 lakh and Hyderabad ₹33.07 lakh; percentages of billed value are needed before ranking performance |

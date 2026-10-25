@@ -4,11 +4,11 @@
 **Period:** 1 January–30 June 2026, India time
 **Observation cutoff:** 15 July 2026, India time
 
-This follows the H1 volume check: active scheduled test lines grew **4.97% (rounds to 5%)** against **18.32%** implied by plan. The finance bridge below is also H1-based. Monetary figures in this brief are in **crores of rupees**; the audit CSVs retain exact rupee amounts.
+This follows the H1 volume check: active scheduled test lines grew **5%**; estimated growth in the six-city plan is **18%**. The finance bridge below is also H1-based. Monetary figures in this brief are in **crores of rupees**; the audit CSVs retain exact rupee amounts.
 
 ## Board sentence
 
-> At H1 2026 close, 11,586 of 162,876 invoices (**₹26.828 crore billed**) carried **₹1.947 crore** in positive balances; after later captures, **₹1.648 crore (6.14% of H1 billings)** remained open across 9,824 invoices on 15 July, while 1,541 H1 captures worth **₹0.267 crore** still lacked a safe invoice match—Finance should prioritize June's open invoices and resolve both exception lists before calling balances lost.
+> H1 2026 had 162,876 invoices (**₹26.828 crore billed**) and **₹1.947 crore** in positive balances at close. June contributed **₹1.053 crore (54.1%)** across 6,256 invoices. By 15 July, **₹1.648 crore (6.14% of H1 billings)** remained open across 9,824 invoices. Separately, 1,541 H1 captures worth **₹26.68 lakh** lacked a safe invoice match, led by UPI. Finance should review June first, then resolve both exception lists before treating balances as losses.
 
 Positive balances are calculated invoice by invoice; overcaptures on other invoices are kept separate and are not used to offset unrelated balances.
 
@@ -36,16 +36,36 @@ Positive balances are calculated invoice by invoice; overcaptures on other invoi
 
 The invoice-cohort match total and the H1 payment-attempt total differ because the first measures captures attached to invoices issued in H1 by the cutoff, while the second measures attempts created during H1. They are separate views of the bridge and should not be added together.
 
-## What the deeper cuts show
+## Where to focus the Finance review
+
+These figures come from the aggregate outputs and describe different snapshots. June and city/channel balances below are at H1 close; the 15 July balance is shown separately.
+
+| Priority | H1-close finding | Next step |
+|---|---|---|
+| June invoices | 6,256 invoices had positive balances totaling **₹1.053 crore**, or **54.1%** of the ₹1.947 crore positive balance. | Review the June list, largest balances first, and check captures recorded after close. |
+| Unmatched captures | 1,541 captured H1 attempts worth **₹26.68 lakh** had no safe invoice match. UPI was the largest method at **792 attempts / ₹13.76 lakh** (about 52% of the unmatched value). | Start with UPI and card references; inspect both reference shapes without assuming the shape caused a mismatch. |
+| City and channel | Combined H1-close balances were highest in Bengaluru (**₹46.32 lakh**), then Ahmedabad (**₹36.55 lakh**), Chennai (**₹33.39 lakh**), Hyderabad (**₹33.07 lakh**), Pune (**₹28.28 lakh**) and Jaipur (**₹17.04 lakh**). | Compare each balance with billed value before drawing conclusions about collection performance. |
+
+The method and city totals above are summed from the generated CSV rows. The current repo output yields Bengaluru ₹46.32 lakh and Hyderabad ₹33.07 lakh; use these data-derived totals rather than alternate figures in presentation notes.
+
+| Payment method | Unmatched attempts | Amount |
+|---|---:|---:|
+| UPI | 792 | ₹13.76 lakh |
+| Card | 447 | ₹7.61 lakh |
+| Cash | 186 | ₹3.37 lakh |
+| Netbanking | 116 | ₹1.95 lakh |
+| **Total** | **1,541** | **₹26.68 lakh** |
+
+The eight method/reference-shape groups have two reference shapes: `INV-9999-999999` (959 attempts) and `INV-9999-9999999` (582 attempts). They are useful investigation clues, not evidence that the format caused the unmatched results.
 
 These are follow-up priorities, not evidence of why a patient did or did not pay:
 
 | Cut | Finding | How to use it |
 |---|---|---|
-| Invoice month | June contributed **₹1.053 crore (54.1%)** of positive balances at H1 close despite representing **16.5%** of H1 billed value. By 15 July, **₹0.755 crore** remained open on June invoices, **45.8%** of the H1 open balance. | Start the Finance review with June's invoice list; the short observation window is consistent with less time to collect, not proof of a June process failure. |
-| City and channel | By 15 July, open balances were **5.97%–6.28%** of billed amount across the six cities. Clinic invoices had **₹0.888 crore** open (**6.33%** of clinic billing) and home invoices **₹0.761 crore** (**5.94%**). | No single city dominates on the billed-value rate; review channel differences with the same due-date and payment-coverage caveats. |
+| Invoice month | June contributed **₹1.053 crore (54.1%)** of positive balances at H1 close despite representing **16.5%** of H1 billed value. By 15 July, **₹0.755 crore** remained open on June invoices, **45.8%** of the H1 open balance. | Start with June's invoice list; the short observation window may mean less time to collect, but does not prove a process failure. |
+| City and channel | By 15 July, open balances were **5.97%–6.28%** of billed amount across the six cities. Clinic invoices had **₹0.888 crore** open (**6.33%** of clinic billing) and home invoices **₹0.761 crore** (**5.94%**). | No single city dominates by billed-value rate; compare like-for-like and account for due dates and payment coverage. |
 | Invoice age | **3,785** open invoices aged 91+ days from invoice date carried **₹0.631 crore (38.3%)** of the balance; **4,019** invoices aged 0–30 days carried **₹0.670 crore (40.6%)**. | Treat this only as age since invoice date. Contractual due dates are not in this pack, so these buckets are not an overdue/DPD analysis. |
-| Unmatched captures | Of 1,541 H1 unmatched captures, **959 (62.2%; ₹0.162 crore)** had the standard-length reference shape but no safe invoice match; **582 (37.8%; ₹0.105 crore)** had a 7-digit final segment. UPI accounts for **792 attempts / ₹0.138 crore**, the largest method group. | The first queue is source coverage and reference correctness; the second is malformed-reference investigation. Neither is a confirmed loss. |
+| Unmatched captures | Of 1,541 H1 unmatched captures, **959 (62.2%; ₹0.162 crore)** had the standard-length reference shape but no safe invoice match; **582 (37.8%; ₹0.105 crore)** had a 7-digit final segment. UPI accounts for **792 attempts / ₹0.138 crore**, the largest method group. | Review source coverage and reference correctness. The reference shapes are clues, not proof of cause or loss. |
 
 The corresponding aggregate, identifier-free tables are [`finance_outstanding_by_invoice_month.csv`](../outputs/brief_c/finance_outstanding_by_invoice_month.csv), [`finance_outstanding_by_city_channel.csv`](../outputs/brief_c/finance_outstanding_by_city_channel.csv), [`finance_open_balance_age.csv`](../outputs/brief_c/finance_open_balance_age.csv), and [`finance_unmatched_capture_breakdown.csv`](../outputs/brief_c/finance_unmatched_capture_breakdown.csv). Exact rupees and row counts are retained. City, channel, age, and month cuts describe distribution only; no supplied field identifies invoice due dates, reversals after the cutoff, or customer cause.
 
