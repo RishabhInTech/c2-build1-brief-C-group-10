@@ -25,7 +25,7 @@ Generated row-level clean data and Finance action lists stay local under the Git
 
 | What | Where |
 |---|---|
-| Video | Not provided |
+| Video | (https://drive.google.com/drive/folders/13XBpoXcJH9BwpqQXavWTx53xnhjyM8pR?usp=sharing) |
 | Slides | [`slides/Group10_Brief_C.pptx`](slides/Group10_Brief_C.pptx) |
 | Task board | [GitHub Issues](https://github.com/RishabhInTech/c2-build1-brief-C-group-10/issues) |
 | Data pack provenance | [`data/raw/README.md`](data/raw/README.md) |
